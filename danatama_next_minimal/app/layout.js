@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "DANATAMA MAKMUR SEKURITAS",
-  description: "Halaman Next.js paling simpel untuk testing Vercel"
+  title: "PT. DANATAMA MAKMUR SEKURITAS",
+  description: "Simulasi e-commerce investasi Danatama Makmur Sekuritas"
 };
 
 export default function RootLayout({ children }) {
@@ -8,22 +8,71 @@ export default function RootLayout({ children }) {
     <html lang="id">
       <body
         style={{
-          backgroundColor: "#0f172a",
-          color: "#e2e8f0",
+          backgroundColor: "#020617",
+          color: "#e5e7eb",
           fontFamily:
             "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           margin: 0,
-          padding: "40px"
+          minHeight: "100vh"
         }}
       >
+        {/* HEADER DENGAN LOGO */}
+        <header
+          style={{
+            borderBottom: "1px solid #1f2937",
+            padding: "12px 24px",
+            backgroundColor: "#020617",
+            position: "sticky",
+            top: 0,
+            zIndex: 20
+          }}
+        >
+          <div
+            style={{
+              maxWidth: "960px",
+              margin: "0 auto",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px"
+            }}
+          >
+            <img
+              src="/logo-danata.png"
+              alt="Logo PT. DANATAMA MAKMUR SEKURITAS"
+              style={{ height: "40px", objectFit: "contain" }}
+            />
+            <div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#facc15"
+                }}
+              >
+                PT. DANATAMA MAKMUR SEKURITAS
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "#9ca3af"
+                }}
+              >
+                MEMBER OF INDONESIA STOCK EXCHANGE
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* KONTEN UTAMA */}
         <main
           style={{
-            maxWidth: "720px",
-            margin: "0 auto",
-            padding: "24px",
-            backgroundColor: "#020617",
-            borderRadius: "16px",
-            border: "1px solid #1f2937"
+            maxWidth: "960px",
+            margin: "24px auto",
+            padding: "0 24px 32px 24px"
           }}
         >
           {children}

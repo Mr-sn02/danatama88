@@ -1,3 +1,5 @@
+"use client";
+
 import products from "../../lib/products";
 
 export default function ProductsPage() {
@@ -26,8 +28,16 @@ export default function ProductsPage() {
             }}
           >
             <h3 style={{ color: "#fbbf24", marginTop: 0 }}>{p.name}</h3>
-            <p style={{ fontSize: "14px", color: "#cbd5e1" }}>{p.description}</p>
-            <p style={{ fontWeight: "bold", color: "#38bdf8", marginTop: "8px" }}>
+            <p style={{ fontSize: "14px", color: "#cbd5e1" }}>
+              {p.description}
+            </p>
+            <p
+              style={{
+                fontWeight: "bold",
+                color: "#38bdf8",
+                marginTop: "8px"
+              }}
+            >
               Rp {p.price.toLocaleString("id-ID")}
             </p>
             <button

@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
             <img
               src="/logo-danata.png"
               alt="Logo PT. DANATAMA MAKMUR SEKURITAS"
-              style={{ height: "40px", objectFit: "contain" }}
+              style={{ height: "55px", objectFit: "contain" }}
             />
             <div>
               <div

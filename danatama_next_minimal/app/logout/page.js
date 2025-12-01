@@ -7,13 +7,11 @@ export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Hapus data simulasi login & user
     if (typeof window !== "undefined") {
       localStorage.removeItem("danatamaUser");
       localStorage.removeItem("danatamaLoggedIn");
     }
 
-    // Redirect setelah sedikit delay
     const timeout = setTimeout(() => {
       router.push("/");
     }, 1200);

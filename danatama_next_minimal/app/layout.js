@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
           minHeight: "100vh"
         }}
       >
-        {/* HEADER DENGAN LOGO */}
+        {/* HEADER */}
         <header
           style={{
             borderBottom: "1px solid #1f2937",
@@ -33,37 +33,69 @@ export default function RootLayout({ children }) {
               margin: "0 auto",
               display: "flex",
               alignItems: "center",
-              gap: "12px"
+              justifyContent: "space-between",
+              gap: "16px"
             }}
           >
-            <img
-              src="/logo-danata.png"
-              alt="Logo PT. DANATAMA MAKMUR SEKURITAS"
-              style={{ height: "55px", objectFit: "contain" }}
-            />
-            <div>
-              <div
-                style={{
-                  fontSize: "15px",
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#facc15"
-                }}
-              >
-                PT. DANATAMA MAKMUR SEKURITAS
-              </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "#9ca3af"
-                }}
-              >
-                MEMBER OF INDONESIA STOCK EXCHANGE
+            {/* Logo + nama */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img
+                src="/logo-danata.png"
+                alt="Logo PT. DANATAMA MAKMUR SEKURITAS"
+                style={{ height: "55px", objectFit: "contain" }}
+              />
+              <div>
+                <div
+                  style={{
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: "#facc15"
+                  }}
+                >
+                  PT. DANATAMA MAKMUR SEKURITAS
+                </div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: "#9ca3af"
+                  }}
+                >
+                  MEMBER OF INDONESIA STOCK EXCHANGE
+                </div>
               </div>
             </div>
+
+            {/* NAV MENU */}
+            <nav
+              style={{
+                display: "flex",
+                gap: "16px",
+                fontSize: "13px"
+              }}
+            >
+              <a
+                href="/"
+                style={{
+                  textDecoration: "none",
+                  color: "#e5e7eb"
+                }}
+              >
+                Beranda
+              </a>
+              <a
+                href="/products"
+                style={{
+                  textDecoration: "none",
+                  color: "#e5e7eb"
+                }}
+              >
+                Produk
+              </a>
+            </nav>
           </div>
         </header>
 

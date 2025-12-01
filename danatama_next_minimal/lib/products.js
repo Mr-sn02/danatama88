@@ -22,7 +22,7 @@ const products = [
   },
   {
     id: 4,
-    name: "Reksa Dana Pasar Uang",
+    name: "Reksadana Pasar Uang",
     price: 100000,
     description:
       "Instrumen risiko rendah berbasis deposito & surat utang jangka pendek, cocok untuk dana parkir."

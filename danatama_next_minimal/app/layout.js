@@ -117,6 +117,21 @@ export default function RootLayout({ children }) {
               >
                 Login
               </a>
+
+              {/* LOGOUT */}
+              <a
+                href="/logout"
+                style={{
+                  textDecoration: "none",
+                  color: "#e5e7eb",
+                  border: "1px solid #4b5563",
+                  padding: "8px 14px",
+                  borderRadius: "999px",
+                  fontWeight: 500
+                }}
+              >
+                Logout
+              </a>
             </nav>
           </div>
         </header>

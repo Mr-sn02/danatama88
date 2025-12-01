@@ -1,19 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import products from "../../lib/products";
 
 export default function ProductsPage() {
   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const data = localStorage.getItem("danatamaLoggedIn");
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (parsed.loggedIn) {
+          setUser(parsed);
+        }
+      }
+    }
+  }, []);
 
   function handleAddToCart(product) {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, qty: item.qty + 1 }
-            : item
+          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
         );
       }
       return [...prev, { ...product, qty: 1 }];
@@ -27,6 +38,20 @@ export default function ProductsPage() {
 
   return (
     <>
+      {user && (
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#a5b4fc",
+            marginTop: 0,
+            marginBottom: "8px"
+          }}
+        >
+          Selamat datang, <strong>{user.username}</strong>. Simulasi berikut
+          hanya untuk tujuan edukasi.
+        </p>
+      )}
+
       <h1 style={{ color: "#fbbf24", marginTop: 0 }}>
         Daftar Produk Investasi
       </h1>

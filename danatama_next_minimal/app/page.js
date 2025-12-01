@@ -1,39 +1,28 @@
 export default function HomePage() {
   return (
     <>
-      <h1
-        style={{
-          color: "#fbbf24",
-          marginTop: 0,
-          fontSize: "26px",
-          marginBottom: "8px"
-        }}
-      >
+      <h1 style={{ color: "#fbbf24", marginTop: 0 }}>
         DANATAMA MAKMUR SEKURITAS
       </h1>
-      <p style={{ fontSize: "14px", marginBottom: "8px", color: "#cbd5f5" }}>
-        Halaman Next.js paling sederhana untuk mengecek bahwa setting GitHub →
-        Vercel sudah benar.
+
+      <p style={{ color: "#cbd5e1", marginBottom: "20px" }}>
+        Platform simulasi investasi — pilih produk saham & instrumen lainnya.
       </p>
-      <p style={{ fontSize: "14px", marginBottom: "8px" }}>
-        Jika kamu melihat halaman ini di domain Vercel, berarti:
-      </p>
-      <ul
+
+      <a
+        href="/products"
         style={{
-          fontSize: "14px",
-          paddingLeft: "20px",
-          marginTop: 0,
-          marginBottom: "8px"
+          display: "inline-block",
+          background: "#fbbf24",
+          color: "#111",
+          padding: "12px 20px",
+          borderRadius: "10px",
+          fontWeight: "bold",
+          textDecoration: "none"
         }}
       >
-        <li>Project sudah terhubung ke repository GitHub dengan benar.</li>
-        <li>Root Directory dan konfigurasi build di Vercel sudah sesuai.</li>
-        <li>Next.js sudah terdeteksi karena ada package.json dan app/page.js.</li>
-      </ul>
-      <p style={{ fontSize: "13px", color: "#9ca3af" }}>
-        Setelah ini, kita bisa ganti halaman ini menjadi e-commerce bertema
-        investasi DANATAMA MAKMUR SEKURITAS.
-      </p>
+        Mulai Lihat Produk
+      </a>
     </>
   );
 }

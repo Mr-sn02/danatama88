@@ -45,7 +45,9 @@ export default function RegisterPage() {
       localStorage.setItem("danatamaUser", JSON.stringify(userData));
     }
 
-    alert("Registrasi simulasi berhasil. Silakan login menggunakan data tersebut.");
+    alert(
+      "Registrasi simulasi berhasil. Silakan login menggunakan kontak & kata sandi tersebut."
+    );
     router.push("/login");
   }
 

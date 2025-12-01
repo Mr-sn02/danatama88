@@ -25,17 +25,27 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    // VALIDASI SIMPLE
     if (!form.username || !form.contact || !form.password) {
       setError("Semua kolom wajib diisi.");
       return;
     }
 
-    // SIMULASI REGISTER
-    alert(
-      `Registrasi berhasil!\n\nNama Pengguna: ${form.username}\nKontak: ${form.contact}`
-    );
+    if (form.password.length < 6) {
+      setError("Kata sandi minimal 6 karakter.");
+      return;
+    }
 
+    // SIMPAN DATA KE LOCALSTORAGE (SIMULASI DATABASE)
+    if (typeof window !== "undefined") {
+      const userData = {
+        username: form.username,
+        contact: form.contact,
+        password: form.password
+      };
+      localStorage.setItem("danatamaUser", JSON.stringify(userData));
+    }
+
+    alert("Registrasi simulasi berhasil. Silakan login menggunakan data tersebut.");
     router.push("/login");
   }
 
@@ -69,7 +79,8 @@ export default function RegisterPage() {
           marginBottom: "16px"
         }}
       >
-        Isi data berikut untuk membuat akun nasabah Danatama Makmur Sekuritas.
+        Isi data berikut untuk membuat akun nasabah (simulasi) Danatama Makmur
+        Sekuritas.
       </p>
 
       <form onSubmit={handleSubmit}>

@@ -47,7 +47,6 @@ export default function LoginPage() {
       return;
     }
 
-    // SIMPAN STATUS LOGIN
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "danatamaLoggedIn",

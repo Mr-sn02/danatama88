@@ -1,22 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ contact: "", password: "" });
   const [error, setError] = useState("");
-  const [storedUser, setStoredUser] = useState(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const data = localStorage.getItem("danatamaUser");
-      if (data) {
-        setStoredUser(JSON.parse(data));
-      }
-    }
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     setForm((prev) => ({
@@ -25,40 +17,30 @@ export default function LoginPage() {
     }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
     if (!form.contact || !form.password) {
-      setError("Kontak dan kata sandi wajib diisi.");
+      setError("Email dan kata sandi wajib diisi.");
       return;
     }
 
-    if (!storedUser) {
-      setError("Belum ada data registrasi. Silakan daftar akun terlebih dahulu.");
+    setLoading(true);
+
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: form.contact,
+      password: form.password
+    });
+
+    setLoading(false);
+
+    if (loginError) {
+      setError(loginError.message || "Gagal login. Periksa email & kata sandi.");
       return;
     }
 
-    if (
-      form.contact !== storedUser.contact ||
-      form.password !== storedUser.password
-    ) {
-      setError("Kontak atau kata sandi tidak sesuai.");
-      return;
-    }
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "danatamaLoggedIn",
-        JSON.stringify({
-          loggedIn: true,
-          username: storedUser.username,
-          contact: storedUser.contact
-        })
-      );
-    }
-
-    alert(`Login simulasi berhasil. Selamat datang, ${storedUser.username}!`);
+    alert("Login berhasil (Supabase).");
     router.push("/products");
   }
 
@@ -91,8 +73,7 @@ export default function LoginPage() {
           marginBottom: "16px"
         }}
       >
-        Masuk menggunakan nomor telepon / email dan kata sandi yang sudah
-        didaftarkan.
+        Masuk menggunakan email dan kata sandi yang sudah didaftarkan.
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -104,14 +85,14 @@ export default function LoginPage() {
             color: "#e5e7eb"
           }}
         >
-          Nomor Telepon / Email
+          Email
         </label>
         <input
-          type="text"
+          type="email"
           name="contact"
           value={form.contact}
           onChange={handleChange}
-          placeholder="Kontak yang digunakan saat registrasi"
+          placeholder="Email terdaftar"
           style={inputStyle}
         />
 
@@ -150,6 +131,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
+          disabled={loading}
           style={{
             width: "100%",
             backgroundColor: "#fbbf24",
@@ -159,11 +141,12 @@ export default function LoginPage() {
             borderRadius: "8px",
             fontWeight: 700,
             fontSize: "14px",
-            cursor: "pointer",
-            marginTop: "16px"
+            cursor: loading ? "default" : "pointer",
+            marginTop: "16px",
+            opacity: loading ? 0.7 : 1
           }}
         >
-          Masuk
+          {loading ? "Memproses..." : "Masuk"}
         </button>
       </form>
 

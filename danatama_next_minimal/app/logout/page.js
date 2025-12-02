@@ -2,21 +2,20 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("danatamaUser");
-      localStorage.removeItem("danatamaLoggedIn");
+    async function doLogout() {
+      await supabase.auth.signOut();
+      const timeout = setTimeout(() => {
+        router.push("/");
+      }, 1200);
+      return () => clearTimeout(timeout);
     }
-
-    const timeout = setTimeout(() => {
-      router.push("/");
-    }, 1200);
-
-    return () => clearTimeout(timeout);
+    doLogout();
   }, [router]);
 
   return (
@@ -58,8 +57,8 @@ export default function LogoutPage() {
           marginTop: 0
         }}
       >
-        Data login simulasi telah dibersihkan. Anda akan dialihkan ke halaman
-        beranda sesaat lagi…
+        Sesi Supabase telah diakhiri. Anda akan dialihkan ke halaman beranda
+        sesaat lagi…
       </p>
     </div>
   );

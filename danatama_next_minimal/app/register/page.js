@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,8 +12,8 @@ export default function RegisterPage() {
     contact: "",
     password: ""
   });
-
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     setForm((prev) => ({
@@ -21,7 +22,7 @@ export default function RegisterPage() {
     }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -30,23 +31,38 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!form.contact.includes("@")) {
+      setError("Untuk saat ini, gunakan alamat email aktif pada kolom kontak.");
+      return;
+    }
+
     if (form.password.length < 6) {
       setError("Kata sandi minimal 6 karakter.");
       return;
     }
 
-    // SIMPAN DATA KE LOCALSTORAGE (SIMULASI DATABASE)
-    if (typeof window !== "undefined") {
-      const userData = {
-        username: form.username,
-        contact: form.contact,
-        password: form.password
-      };
-      localStorage.setItem("danatamaUser", JSON.stringify(userData));
+    setLoading(true);
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: form.contact,
+      password: form.password,
+      options: {
+        data: {
+          username: form.username,
+          contact: form.contact
+        }
+      }
+    });
+
+    setLoading(false);
+
+    if (signUpError) {
+      setError(signUpError.message || "Terjadi kesalahan saat registrasi.");
+      return;
     }
 
     alert(
-      "Registrasi simulasi berhasil. Silakan login menggunakan kontak & kata sandi tersebut."
+      "Registrasi berhasil (Supabase). Jika verifikasi email diaktifkan, silakan cek inbox Anda."
     );
     router.push("/login");
   }
@@ -82,7 +98,7 @@ export default function RegisterPage() {
         }}
       >
         Isi data berikut untuk membuat akun nasabah (simulasi) Danatama Makmur
-        Sekuritas.
+        Sekuritas. Gunakan email aktif pada kolom kontak.
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -106,7 +122,7 @@ export default function RegisterPage() {
           style={inputStyle}
         />
 
-        {/* NOMOR TELEPON / EMAIL */}
+        {/* EMAIL / KONTAK */}
         <label
           style={{
             display: "block",
@@ -116,14 +132,14 @@ export default function RegisterPage() {
             color: "#e5e7eb"
           }}
         >
-          Nomor Telepon atau Email
+          Email (Kontak Verifikasi)
         </label>
         <input
-          type="text"
+          type="email"
           name="contact"
           value={form.contact}
           onChange={handleChange}
-          placeholder="0812xxxxxx atau contoh@email.com"
+          placeholder="contoh: nasabah@danatama.co.id"
           style={inputStyle}
         />
 
@@ -163,6 +179,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
+          disabled={loading}
           style={{
             width: "100%",
             backgroundColor: "#fbbf24",
@@ -172,11 +189,12 @@ export default function RegisterPage() {
             borderRadius: "8px",
             fontWeight: 700,
             fontSize: "14px",
-            cursor: "pointer",
-            marginTop: "16px"
+            cursor: loading ? "default" : "pointer",
+            marginTop: "16px",
+            opacity: loading ? 0.7 : 1
           }}
         >
-          Daftar
+          {loading ? "Memproses..." : "Daftar"}
         </button>
       </form>
 

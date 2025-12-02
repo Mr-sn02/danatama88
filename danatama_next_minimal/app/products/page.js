@@ -2,21 +2,20 @@
 
 import { useState, useEffect } from "react";
 import products from "../../lib/products";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function ProductsPage() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const data = localStorage.getItem("danatamaLoggedIn");
-      if (data) {
-        const parsed = JSON.parse(data);
-        if (parsed.loggedIn) {
-          setUser(parsed);
-        }
+    async function fetchUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data?.user) {
+        setUser(data.user);
       }
     }
+    fetchUser();
   }, []);
 
   function handleAddToCart(product) {
@@ -36,6 +35,9 @@ export default function ProductsPage() {
     0
   );
 
+  const displayName =
+    user?.user_metadata?.username || user?.email || "Nasabah";
+
   return (
     <>
       {user && (
@@ -47,8 +49,8 @@ export default function ProductsPage() {
             marginBottom: "8px"
           }}
         >
-          Selamat datang, <strong>{user.username}</strong>. Simulasi berikut
-          hanya untuk tujuan edukasi.
+          Selamat datang, <strong>{displayName}</strong>. Simulasi berikut hanya
+          untuk tujuan edukasi.
         </p>
       )}
 

@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabaseClient";
 export default function ProductsPage() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [checkingUser, setCheckingUser] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
@@ -14,6 +15,7 @@ export default function ProductsPage() {
       if (!error && data?.user) {
         setUser(data.user);
       }
+      setCheckingUser(false);
     }
     fetchUser();
   }, []);
@@ -38,21 +40,83 @@ export default function ProductsPage() {
   const displayName =
     user?.user_metadata?.username || user?.email || "Nasabah";
 
-  return (
-    <>
-      {user && (
+  // ⏳ Saat masih cek user
+  if (checkingUser) {
+    return (
+      <p style={{ fontSize: "14px", color: "#9ca3af" }}>
+        Mengecek sesi login…
+      </p>
+    );
+  }
+
+  // 🚫 Kalau belum login
+  if (!user) {
+    return (
+      <div
+        style={{
+          maxWidth: "420px",
+          margin: "0 auto",
+          backgroundColor: "#020617",
+          borderRadius: "16px",
+          border: "1px solid #1f2937",
+          padding: "20px",
+          textAlign: "center"
+        }}
+      >
+        <h1
+          style={{
+            color: "#fbbf24",
+            marginTop: 0,
+            marginBottom: "8px",
+            fontSize: "20px"
+          }}
+        >
+          Butuh Login
+        </h1>
         <p
           style={{
             fontSize: "13px",
-            color: "#a5b4fc",
+            color: "#cbd5e1",
             marginTop: 0,
-            marginBottom: "8px"
+            marginBottom: "12px"
           }}
         >
-          Selamat datang, <strong>{displayName}</strong>. Simulasi berikut hanya
-          untuk tujuan edukasi.
+          Untuk mengakses simulasi produk investasi, silakan login terlebih
+          dahulu dengan akun Danatama.
         </p>
-      )}
+        <a
+          href="/login"
+          style={{
+            display: "inline-block",
+            textDecoration: "none",
+            backgroundColor: "#fbbf24",
+            color: "#111827",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            fontWeight: 700,
+            fontSize: "14px"
+          }}
+        >
+          Pergi ke Halaman Login
+        </a>
+      </div>
+    );
+  }
+
+  // ✅ Kalau sudah login
+  return (
+    <>
+      <p
+        style={{
+          fontSize: "13px",
+          color: "#a5b4fc",
+          marginTop: 0,
+          marginBottom: "8px"
+        }}
+      >
+        Selamat datang, <strong>{displayName}</strong>. Simulasi berikut hanya
+        untuk tujuan edukasi.
+      </p>
 
       <h1 style={{ color: "#fbbf24", marginTop: 0 }}>
         Daftar Produk Investasi

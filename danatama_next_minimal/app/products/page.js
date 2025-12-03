@@ -54,7 +54,7 @@ export default function ProductsPage() {
         return prev.map((item) =>
           item.id === product.id ? { ...item, qty: item.qty + 1 } : item
         );
-      }
+    }
       return [...prev, { ...product, qty: 1 }];
     });
   }
@@ -140,72 +140,84 @@ export default function ProductsPage() {
     );
   }
 
-  // ⏳ Saat masih cek user
+  // Styles bersama (supaya rapi di HP & desktop)
+  const pageWrapper = {
+    maxWidth: "960px",
+    margin: "0 auto",
+    padding: "12px 10px 24px 10px",
+    boxSizing: "border-box"
+  };
+
   if (checkingUser) {
     return (
-      <p style={{ fontSize: "14px", color: "#9ca3af" }}>
-        Mengecek sesi login…
-      </p>
+      <div style={pageWrapper}>
+        <p style={{ fontSize: "14px", color: "#9ca3af" }}>
+          Mengecek sesi login…
+        </p>
+      </div>
     );
   }
 
   // 🚫 Kalau belum login
   if (!user) {
     return (
-      <div
-        style={{
-          maxWidth: "420px",
-          margin: "0 auto",
-          backgroundColor: "#020617",
-          borderRadius: "16px",
-          border: "1px solid #1f2937",
-          padding: "20px",
-          textAlign: "center"
-        }}
-      >
-        <h1
+      <div style={pageWrapper}>
+        <div
           style={{
-            color: "#fbbf24",
-            marginTop: 0,
-            marginBottom: "8px",
-            fontSize: "20px"
+            maxWidth: "420px",
+            margin: "0 auto",
+            backgroundColor: "#020617",
+            borderRadius: "16px",
+            border: "1px solid #1f2937",
+            padding: "20px",
+            textAlign: "center",
+            boxSizing: "border-box"
           }}
         >
-          Butuh Login
-        </h1>
-        <p
-          style={{
-            fontSize: "13px",
-            color: "#cbd5e1",
-            marginTop: 0,
-            marginBottom: "12px"
-          }}
-        >
-          Untuk mengakses simulasi produk investasi, silakan login terlebih
-          dahulu dengan akun Danatama.
-        </p>
-        <a
-          href="/login"
-          style={{
-            display: "inline-block",
-            textDecoration: "none",
-            backgroundColor: "#fbbf24",
-            color: "#111827",
-            padding: "10px 16px",
-            borderRadius: "8px",
-            fontWeight: 700,
-            fontSize: "14px"
-          }}
-        >
-          Pergi ke Halaman Login
-        </a>
+          <h1
+            style={{
+              color: "#fbbf24",
+              marginTop: 0,
+              marginBottom: "8px",
+              fontSize: "20px"
+            }}
+          >
+            Butuh Login
+          </h1>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "#cbd5e1",
+              marginTop: 0,
+              marginBottom: "12px"
+            }}
+          >
+            Untuk mengakses simulasi produk investasi, silakan login terlebih
+            dahulu dengan akun Danatama.
+          </p>
+          <a
+            href="/login"
+            style={{
+              display: "inline-block",
+              textDecoration: "none",
+              backgroundColor: "#fbbf24",
+              color: "#111827",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              fontWeight: 700,
+              fontSize: "14px"
+            }}
+          >
+            Pergi ke Halaman Login
+          </a>
+        </div>
       </div>
     );
   }
 
   // ✅ Tampilan saat sudah login
   return (
-    <>
+    <div style={pageWrapper}>
       {/* Salam & saldo dompet */}
       <p
         style={{
@@ -226,7 +238,7 @@ export default function ProductsPage() {
           marginBottom: "16px",
           display: "flex",
           flexWrap: "wrap",
-          gap: "12px",
+          gap: "8px",
           alignItems: "center"
         }}
       >
@@ -254,10 +266,17 @@ export default function ProductsPage() {
       </div>
 
       {/* Daftar produk */}
-      <h1 style={{ color: "#fbbf24", marginTop: 0 }}>
+      <h1 style={{ color: "#fbbf24", marginTop: 0, fontSize: "20px" }}>
         Daftar Produk Investasi
       </h1>
-      <p style={{ marginBottom: "20px", color: "#cbd5e1" }}>
+      <p
+        style={{
+          marginBottom: "16px",
+          color: "#cbd5e1",
+          fontSize: "13px",
+          marginTop: "4px"
+        }}
+      >
         Pilih instrumen investasi yang ingin kamu simulasikan. Total pembelian
         tidak boleh melebihi saldo dompet simulasi.
       </p>
@@ -265,9 +284,9 @@ export default function ProductsPage() {
       <div
         style={{
           display: "grid",
-          gap: "16px",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          marginBottom: "24px"
+          gap: "12px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          marginBottom: "20px"
         }}
       >
         {products.map((p) => (
@@ -276,8 +295,9 @@ export default function ProductsPage() {
             style={{
               background: "#020617",
               borderRadius: "14px",
-              padding: "16px",
-              border: "1px solid #334155"
+              padding: "12px",
+              border: "1px solid #334155",
+              boxSizing: "border-box"
             }}
           >
             <div
@@ -291,29 +311,49 @@ export default function ProductsPage() {
             >
               {p.code}
             </div>
-            <h3 style={{ color: "#fbbf24", marginTop: 0 }}>{p.name}</h3>
-            <p style={{ fontSize: "14px", color: "#cbd5e1" }}>
+            <h3
+              style={{
+                color: "#fbbf24",
+                marginTop: 0,
+                marginBottom: "4px",
+                fontSize: "15px"
+              }}
+            >
+              {p.name}
+            </h3>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#cbd5e1",
+                marginBottom: "6px"
+              }}
+            >
               {p.description}
             </p>
             <p
               style={{
                 fontWeight: "bold",
                 color: "#38bdf8",
-                marginTop: "8px"
+                marginTop: "4px",
+                marginBottom: "8px",
+                fontSize: "14px"
               }}
             >
               Rp {p.price.toLocaleString("id-ID")}
             </p>
             <button
               style={{
-                marginTop: "10px",
+                width: "100%",
+                marginTop: "4px",
                 background: "#fbbf24",
                 color: "#111",
-                padding: "10px 16px",
+                padding: "8px 10px",
                 borderRadius: "8px",
                 border: "none",
                 cursor: "pointer",
-                fontWeight: 600
+                fontWeight: 600,
+                fontSize: "13px",
+                boxSizing: "border-box"
               }}
               onClick={() => handleAddToCart(p)}
             >
@@ -329,12 +369,13 @@ export default function ProductsPage() {
           background: "#020617",
           borderRadius: "14px",
           border: "1px solid #334155",
-          padding: "16px"
+          padding: "14px",
+          boxSizing: "border-box"
         }}
       >
         <h2
           style={{
-            fontSize: "18px",
+            fontSize: "16px",
             marginTop: 0,
             marginBottom: "8px",
             color: "#fbbf24"
@@ -344,7 +385,7 @@ export default function ProductsPage() {
         </h2>
 
         {cart.length === 0 ? (
-          <p style={{ fontSize: "14px", color: "#9ca3af" }}>
+          <p style={{ fontSize: "13px", color: "#9ca3af" }}>
             Keranjang masih kosong. Tambahkan saham atau produk lain untuk
             melihat simulasi nominal investasi.
           </p>
@@ -355,7 +396,7 @@ export default function ProductsPage() {
                 listStyle: "none",
                 padding: 0,
                 margin: 0,
-                marginBottom: "12px"
+                marginBottom: "10px"
               }}
             >
               {cart.map((item) => (
@@ -364,22 +405,35 @@ export default function ProductsPage() {
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center",
-                    fontSize: "14px",
+                    alignItems: "flex-start",
+                    fontSize: "13px",
                     padding: "6px 0",
-                    borderBottom: "1px solid #1f2937"
+                    borderBottom: "1px solid #1f2937",
+                    gap: "8px"
                   }}
                 >
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>
                       {item.code} – {item.name}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#9ca3af" }}>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#9ca3af",
+                        marginTop: "2px"
+                      }}
+                    >
                       Qty: {item.qty} × Rp{" "}
                       {item.price.toLocaleString("id-ID")}
                     </div>
                   </div>
-                  <div style={{ fontWeight: 600, color: "#38bdf8" }}>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      color: "#38bdf8",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
                     Rp{" "}
                     {(item.price * item.qty).toLocaleString("id-ID")}
                   </div>
@@ -392,10 +446,14 @@ export default function ProductsPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginTop: "8px"
+                marginTop: "6px",
+                gap: "8px",
+                flexWrap: "wrap"
               }}
             >
-              <div style={{ fontWeight: 700 }}>Total Nominal Investasi</div>
+              <div style={{ fontWeight: 700, fontSize: "14px" }}>
+                Total Nominal Investasi
+              </div>
               <div
                 style={{
                   fontWeight: 800,
@@ -423,11 +481,11 @@ export default function ProductsPage() {
 
             <button
               style={{
-                marginTop: "12px",
+                marginTop: "10px",
                 background:
                   saving || subtotal > walletBalance ? "#6b7280" : "#1d4ed8",
                 color: "#e5e7eb",
-                padding: "10px 16px",
+                padding: "9px 12px",
                 borderRadius: "8px",
                 border: "none",
                 cursor:
@@ -436,7 +494,9 @@ export default function ProductsPage() {
                     : "pointer",
                 fontWeight: 600,
                 fontSize: "14px",
-                opacity: saving ? 0.7 : 1
+                opacity: saving ? 0.7 : 1,
+                width: "100%",
+                boxSizing: "border-box"
               }}
               onClick={handleSavePortfolio}
               disabled={saving || subtotal > walletBalance}
@@ -449,7 +509,7 @@ export default function ProductsPage() {
                 style={{
                   fontSize: "12px",
                   color: "#9ca3af",
-                  marginTop: "8px"
+                  marginTop: "6px"
                 }}
               >
                 {saveMessage}
@@ -458,6 +518,6 @@ export default function ProductsPage() {
           </>
         )}
       </section>
-    </>
+    </div>
   );
 }

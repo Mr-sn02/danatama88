@@ -8,11 +8,20 @@ export default function WalletPage() {
   const [checking, setChecking] = useState(true);
   const [loadingTx, setLoadingTx] = useState(false);
   const [transactions, setTransactions] = useState([]);
-  const [form, setForm] = useState({
-    type: "DEPOSIT",
+
+  // Form deposit & withdraw
+  const [deposit, setDeposit] = useState({
     amount: "",
-    description: ""
+    senderName: "",
+    note: "",
+    targetAccount: "BCA - 1234567890 a.n. MONEYMAIL",
+    proofName: ""
   });
+  const [withdraw, setWithdraw] = useState({
+    amount: "",
+    note: ""
+  });
+
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -38,14 +47,6 @@ export default function WalletPage() {
     fetchUserAndTx();
   }, []);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  }
-
   // Hitung saldo hanya dari transaksi APPROVED
   const summary = transactions.reduce(
     (acc, tx) => {
@@ -63,7 +64,18 @@ export default function WalletPage() {
     { balance: 0, deposit: 0, withdraw: 0 }
   );
 
-  async function handleSubmit(e) {
+  function handleDepositChange(e) {
+    const { name, value } = e.target;
+    setDeposit((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleWithdrawChange(e) {
+    const { name, value } = e.target;
+    setWithdraw((prev) => ({ ...prev, [name]: value }));
+  }
+
+  // ========= SUBMIT DEPOSIT =========
+  async function handleSubmitDeposit(e) {
     e.preventDefault();
     setMessage("");
 
@@ -72,54 +84,128 @@ export default function WalletPage() {
       return;
     }
 
-    const amountNum = Number(form.amount);
+    const amountNum = Number(deposit.amount);
     if (!amountNum || amountNum <= 0) {
-      setMessage("Nominal harus lebih besar dari 0.");
+      setMessage("Nominal deposit harus lebih besar dari 0.");
       return;
     }
 
-    // NOTE: Di level pengajuan, kita tidak cek saldo. Cek saldo bisa dilakukan admin saat ACC.
+    const descParts = [];
+    if (deposit.note) descParts.push(`Catatan: ${deposit.note}`);
+    if (deposit.senderName)
+      descParts.push(`Atas nama pengirim: ${deposit.senderName}`);
+    if (deposit.targetAccount)
+      descParts.push(`Rekening tujuan: ${deposit.targetAccount}`);
+    if (deposit.proofName)
+      descParts.push(`Nama file bukti: ${deposit.proofName} (belum tersimpan)`);
+    const finalDescription = descParts.join(" | ") || null;
+
     setSubmitting(true);
 
     const { error } = await supabase.from("wallet_transactions").insert({
       user_id: user.id,
-      type: form.type,
+      type: "DEPOSIT",
       amount: amountNum,
-      description: form.description || null,
-      status: "PENDING" // penting: jadi pengajuan, bukan langsung aktif
+      description: finalDescription,
+      status: "PENDING" // menunggu ACC admin
     });
 
     setSubmitting(false);
 
     if (error) {
       console.error(error);
-      setMessage("Gagal menyimpan pengajuan: " + error.message);
+      setMessage("Gagal menyimpan pengajuan deposit: " + error.message);
       return;
     }
 
-    // Tambah pengajuan baru ke list lokal (status PENDING)
     const newTx = {
       id: Date.now(),
       user_id: user.id,
-      type: form.type,
+      type: "DEPOSIT",
       amount: amountNum,
-      description: form.description || null,
+      description: finalDescription,
       status: "PENDING",
       created_at: new Date().toISOString()
     };
 
     setTransactions((prev) => [newTx, ...prev]);
-
-    setForm({
-      type: "DEPOSIT",
+    setDeposit({
       amount: "",
-      description: ""
+      senderName: "",
+      note: "",
+      targetAccount: "BCA - 1234567890 a.n. MONEYMAIL",
+      proofName: ""
     });
 
     setMessage(
-      form.type === "DEPOSIT"
-        ? "Pengajuan deposit berhasil dikirim. Menunggu persetujuan admin."
-        : "Pengajuan withdraw berhasil dikirim. Menunggu persetujuan admin."
+      "Pengajuan DEPOSIT berhasil dikirim. Admin akan meninjau dan menyetujui/menolak pengajuan Anda."
+    );
+  }
+
+  // ========= SUBMIT WITHDRAW =========
+  async function handleSubmitWithdraw(e) {
+    e.preventDefault();
+    setMessage("");
+
+    if (!user) {
+      setMessage("Anda harus login untuk menggunakan dompet.");
+      return;
+    }
+
+    const amountNum = Number(withdraw.amount);
+    if (!amountNum || amountNum <= 0) {
+      setMessage("Nominal withdraw harus lebih besar dari 0.");
+      return;
+    }
+
+    // optional: boleh cek saldo di sisi user juga
+    if (amountNum > summary.balance) {
+      setMessage(
+        "Pengajuan withdraw melebihi saldo tersetujui. Silakan kurangi nominal."
+      );
+      return;
+    }
+
+    const finalDescription = withdraw.note
+      ? `Catatan: ${withdraw.note}`
+      : null;
+
+    setSubmitting(true);
+
+    const { error } = await supabase.from("wallet_transactions").insert({
+      user_id: user.id,
+      type: "WITHDRAW",
+      amount: amountNum,
+      description: finalDescription,
+      status: "PENDING"
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error(error);
+      setMessage("Gagal menyimpan pengajuan withdraw: " + error.message);
+      return;
+    }
+
+    const newTx = {
+      id: Date.now(),
+      user_id: user.id,
+      type: "WITHDRAW",
+      amount: amountNum,
+      description: finalDescription,
+      status: "PENDING",
+      created_at: new Date().toISOString()
+    };
+
+    setTransactions((prev) => [newTx, ...prev]);
+    setWithdraw({
+      amount: "",
+      note: ""
+    });
+
+    setMessage(
+      "Pengajuan WITHDRAW berhasil dikirim. Admin akan meninjau dan menyetujui/menolak pengajuan Anda."
     );
   }
 
@@ -231,10 +317,10 @@ export default function WalletPage() {
         />
       </div>
 
-      {/* Form transaksi */}
+      {/* FORM DEPOSIT - mirip screenshot "Ajukan menabung" */}
       <div
         style={{
-          maxWidth: "480px",
+          maxWidth: "800px",
           marginBottom: "24px",
           backgroundColor: "#020617",
           borderRadius: "16px",
@@ -246,113 +332,289 @@ export default function WalletPage() {
           style={{
             color: "#e5e7eb",
             marginTop: 0,
-            marginBottom: "12px",
+            marginBottom: "8px",
             fontSize: "16px"
           }}
         >
-          Ajukan Transaksi
+          Ajukan menabung
         </h2>
+        <p
+          style={{
+            fontSize: "12px",
+            color: "#9ca3af",
+            marginTop: 0,
+            marginBottom: "12px"
+          }}
+        >
+          Lakukan transfer ke salah satu rekening resmi Dompet Danatama, lalu isi
+          nominal, nama pengirim, dan (opsional) catatan atau unggah bukti
+          transfer. Admin akan mengecek dan menyetujui secara simulasi.
+        </p>
 
-        <form onSubmit={handleSubmit}>
-          {/* Jenis transaksi */}
-          <label
-            style={{
-              display: "block",
-              fontSize: "13px",
-              marginBottom: "4px",
-              color: "#e5e7eb"
-            }}
-          >
-            Jenis Transaksi
-          </label>
-          <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            style={inputStyle}
-          >
-            <option value="DEPOSIT">Deposit</option>
-            <option value="WITHDRAW">Withdraw</option>
-          </select>
-
+        <form onSubmit={handleSubmitDeposit}>
           {/* Nominal */}
-          <label
-            style={{
-              display: "block",
-              fontSize: "13px",
-              marginBottom: "4px",
-              marginTop: "10px",
-              color: "#e5e7eb"
-            }}
-          >
-            Nominal (Rp)
-          </label>
+          <label style={labelStyle}>Nominal Menabung</label>
           <input
             type="number"
             name="amount"
-            value={form.amount}
-            onChange={handleChange}
-            placeholder="Contoh: 1000000"
+            value={deposit.amount}
+            onChange={handleDepositChange}
+            placeholder="contoh: 100000"
             style={inputStyle}
             min="0"
             step="1000"
           />
 
-          {/* Keterangan */}
-          <label
-            style={{
-              display: "block",
-              fontSize: "13px",
-              marginBottom: "4px",
-              marginTop: "10px",
-              color: "#e5e7eb"
-            }}
-          >
-            Keterangan (opsional)
-          </label>
+          {/* Nama pengirim */}
+          <label style={labelStyle}>Atas nama pengirim</label>
           <input
             type="text"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Contoh: Top up awal, penarikan keuntungan"
+            name="senderName"
+            value={deposit.senderName}
+            onChange={handleDepositChange}
+            placeholder="nama pemilik rekening pengirim"
             style={inputStyle}
           />
 
-          {message && (
-            <p
+          {/* Catatan */}
+          <label style={labelStyle}>Catatan tambahan (opsional)</label>
+          <textarea
+            name="note"
+            value={deposit.note}
+            onChange={handleDepositChange}
+            placeholder="contoh: setor untuk tabungan pendidikan / setor pertama, mohon dibantu."
+            rows={3}
+            style={{
+              ...inputStyle,
+              resize: "vertical",
+              fontFamily: "inherit"
+            }}
+          />
+
+          {/* Rekening tujuan + bukti transfer */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              marginTop: "10px"
+            }}
+          >
+            <div style={{ flex: "1 1 220px" }}>
+              <label style={labelStyle}>Rekening tujuan deposit</label>
+              <select
+                name="targetAccount"
+                value={deposit.targetAccount}
+                onChange={handleDepositChange}
+                style={inputStyle}
+              >
+                <option value="BCA - 1234567890 a.n. MONEYMAIL">
+                  BCA - 1234567890 a.n. MONEYMAIL
+                </option>
+                <option value="Mandiri - 9876543210 a.n. MONEYMAIL">
+                  Mandiri - 9876543210 a.n. MONEYMAIL
+                </option>
+                <option value="BRI - 555666777 a.n. MONEYMAIL">
+                  BRI - 555666777 a.n. MONEYMAIL
+                </option>
+              </select>
+            </div>
+
+            <div style={{ flex: "1 1 220px" }}>
+              <label style={labelStyle}>Bukti transfer (opsional)</label>
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  display: "inline-block",
+                  width: "100%"
+                }}
+              >
+                <input
+                  type="file"
+                  onChange={(e) =>
+                    setDeposit((prev) => ({
+                      ...prev,
+                      proofName:
+                        e.target.files && e.target.files[0]
+                          ? e.target.files[0].name
+                          : ""
+                    }))
+                  }
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    width: "100%",
+                    height: "100%",
+                    cursor: "pointer"
+                  }}
+                />
+                <div
+                  style={{
+                    ...inputStyle,
+                    cursor: "pointer",
+                    color: deposit.proofName ? "#e5e7eb" : "#9ca3af"
+                  }}
+                >
+                  {deposit.proofName || "Pilih file (simulasi, belum di-upload)"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Info & tombol */}
+          <p
+            style={{
+              fontSize: "11px",
+              color: "#64748b",
+              marginTop: "10px",
+              marginBottom: "12px"
+            }}
+          >
+            Jika nomor rekening tujuan berbeda dari informasi resmi, tidak aktif,
+            atau kamu ragu, jangan melakukan transfer. Fitur ini hanya simulasi
+            dan tidak menyimpan uang nyata.
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              marginTop: "8px"
+            }}
+          >
+            <button
+              type="submit"
+              disabled={submitting}
               style={{
-                fontSize: "12px",
-                color: "#9ca3af",
-                marginTop: "6px",
-                marginBottom: 0
+                flex: "1 1 200px",
+                background:
+                  submitting ? "#eab308aa" : "#eab308",
+                color: "#111827",
+                border: "none",
+                padding: "10px 16px",
+                borderRadius: "999px",
+                fontWeight: 700,
+                fontSize: "14px",
+                cursor: submitting ? "default" : "pointer",
+                textTransform: "uppercase"
               }}
             >
-              {message}
-            </p>
-          )}
+              {submitting ? "Mengirim..." : "Ajukan Deposit"}
+            </button>
+
+            <a
+              href="https://wa.me/6281234567890"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                flex: "1 1 200px",
+                textAlign: "center",
+                textDecoration: "none",
+                backgroundColor: "#020617",
+                border: "1px solid #e5e7eb33",
+                color: "#e5e7eb",
+                padding: "10px 16px",
+                borderRadius: "999px",
+                fontWeight: 600,
+                fontSize: "14px",
+                textTransform: "uppercase"
+              }}
+            >
+              Pengaduan WhatsApp
+            </a>
+          </div>
+        </form>
+      </div>
+
+      {/* FORM WITHDRAW SEDERHANA */}
+      <div
+        style={{
+          maxWidth: "600px",
+          marginBottom: "24px",
+          backgroundColor: "#020617",
+          borderRadius: "16px",
+          border: "1px solid #1f2937",
+          padding: "20px"
+        }}
+      >
+        <h2
+          style={{
+            color: "#e5e7eb",
+            marginTop: 0,
+            marginBottom: "8px",
+            fontSize: "16px"
+          }}
+        >
+          Ajukan penarikan (withdraw)
+        </h2>
+        <p
+          style={{
+            fontSize: "12px",
+            color: "#9ca3af",
+            marginTop: 0,
+            marginBottom: "12px"
+          }}
+        >
+          Pengajuan withdraw akan mengurangi saldo setelah disetujui admin.
+        </p>
+
+        <form onSubmit={handleSubmitWithdraw}>
+          <label style={labelStyle}>Nominal Withdraw</label>
+          <input
+            type="number"
+            name="amount"
+            value={withdraw.amount}
+            onChange={handleWithdrawChange}
+            placeholder="contoh: 500000"
+            style={inputStyle}
+            min="0"
+            step="1000"
+          />
+
+          <label style={labelStyle}>Catatan (opsional)</label>
+          <input
+            type="text"
+            name="note"
+            value={withdraw.note}
+            onChange={handleWithdrawChange}
+            placeholder="contoh: tarik sebagian keuntungan"
+            style={inputStyle}
+          />
 
           <button
             type="submit"
             disabled={submitting}
             style={{
-              width: "100%",
-              backgroundColor: "#fbbf24",
+              marginTop: "12px",
+              backgroundColor: "#f97316",
               color: "#111827",
               border: "none",
               padding: "10px 16px",
               borderRadius: "8px",
               fontWeight: 700,
               fontSize: "14px",
-              cursor: submitting ? "default" : "pointer",
-              marginTop: "16px",
-              opacity: submitting ? 0.7 : 1
+              cursor: submitting ? "default" : "pointer"
             }}
           >
-            {submitting ? "Mengirim Pengajuan…" : "Kirim Pengajuan"}
+            {submitting ? "Mengirim..." : "Ajukan Withdraw"}
           </button>
         </form>
       </div>
+
+      {message && (
+        <p
+          style={{
+            fontSize: "12px",
+            color: "#9ca3af",
+            marginTop: 0,
+            marginBottom: "12px"
+          }}
+        >
+          {message}
+        </p>
+      )}
 
       {/* Riwayat transaksi */}
       <h2
@@ -503,6 +765,14 @@ function SummaryCard({ label, value, highlight = false, negative = false }) {
     </div>
   );
 }
+
+const labelStyle = {
+  display: "block",
+  fontSize: "13px",
+  marginBottom: "4px",
+  marginTop: "10px",
+  color: "#e5e7eb"
+};
 
 const inputStyle = {
   width: "100%",

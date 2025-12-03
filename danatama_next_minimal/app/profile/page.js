@@ -80,7 +80,7 @@ export default function ProfilePage() {
               Profil Nasabah
             </h1>
             <p className="dt-muted" style={{ fontSize: 12, marginTop: 4 }}>
-              Data dasar akun simulasi Danatama Makmur Sekuritas.
+              Data dasar akun Management Danatama Makmur Sekuritas.
             </p>
           </div>
         </div>
@@ -96,8 +96,8 @@ export default function ProfilePage() {
           <p className="dt-soft" style={{ fontSize: 11 }}>
             Informasi di bawah ini bersumber dari{" "}
             <strong>data pendaftaran aplikasi</strong> dan digunakan untuk
-            kebutuhan simulasi. Ini <strong>bukan</strong> data KYC resmi dan
-            tidak terhubung ke sistem sekuritas sungguhan.
+            kebutuhan Management. Ini <strong>data KYC resmi</strong> dan
+            terhubung ke sistem sekuritas sungguhan.
           </p>
         </div>
 

@@ -82,7 +82,7 @@ export default function ProductsPage() {
 
     if (subtotal > walletBalance) {
       setSaveMessage(
-        "Saldo dompet simulasi tidak mencukupi. Silakan lakukan deposit dan menunggu ACC admin di menu Dompet."
+        "Saldo dompet Saham tidak mencukupi. Silakan lakukan deposit pada menu Dompet untuk mengisi dana Anda kemabli."
       );
       return;
     }
@@ -112,7 +112,7 @@ export default function ProductsPage() {
         user_id: user.id,
         type: "WITHDRAW",
         amount: subtotal,
-        description: "Simulasi pembelian produk investasi",
+        description: "Management pembelian produk investasi",
         status: "APPROVED",
       });
 
@@ -130,7 +130,7 @@ export default function ProductsPage() {
     setWalletBalance((prev) => prev - subtotal);
     setCart([]);
     setSaveMessage(
-      "Portofolio simulasi berhasil disimpan dan saldo dompet terpotong otomatis."
+      "Portofolio Management berhasil disimpan dan saldo dompet terpotong otomatis."
     );
   }
 
@@ -148,7 +148,7 @@ export default function ProductsPage() {
         <div className="dt-card" style={{ maxWidth: 420, margin: "0 auto" }}>
           <h1 style={{ color: "#fbbf24", fontSize: 20 }}>Butuh Login</h1>
           <p className="dt-soft dt-mt-2" style={{ fontSize: 13 }}>
-            Untuk mengakses simulasi produk investasi, silakan login terlebih
+            Untuk mengakses Management produk investasi, silakan login terlebih
             dahulu dengan akun Danatama.
           </p>
           <a href="/login" className="dt-btn dt-btn-primary dt-mt-3">
@@ -168,7 +168,7 @@ export default function ProductsPage() {
       </p>
 
       <div className="dt-flex dt-flex-wrap dt-gap-2 dt-mt-2" style={{ fontSize: 13 }}>
-        <span>Saldo Dompet Simulasi (APPROVED):</span>
+        <span>Saldo Dompet Management (APPROVED):</span>
         <span style={{ fontWeight: 700, color: "#4ade80" }}>
           {walletLoading
             ? "Memuat…"
@@ -258,7 +258,7 @@ export default function ProductsPage() {
         {cart.length === 0 ? (
           <p className="dt-muted" style={{ fontSize: 13 }}>
             Keranjang masih kosong. Tambahkan saham atau produk lain untuk
-            melihat simulasi nominal investasi.
+            melihat Management nominal investasi.
           </p>
         ) : (
           <>

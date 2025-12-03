@@ -87,6 +87,9 @@ export default function RootLayout({ children }) {
               <a href="/services" style={navLink}>
                 Layanan
               </a>
+              <a href="/portfolio-history" style={navLink}>
+                Portofolio
+              </a>
 
               {/* REGISTER */}
               <a

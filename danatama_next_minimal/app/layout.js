@@ -28,9 +28,6 @@ export default function RootLayout({ children }) {
     router.push("/login");
   }
 
-  // Halaman depan (landing) hanya di path "/"
-  const isLanding = pathname === "/";
-
   const navLink = {
     textDecoration: "none",
     color: "#e5e7eb",
@@ -40,10 +37,16 @@ export default function RootLayout({ children }) {
     whiteSpace: "nowrap"
   };
 
+  // Halaman yang tidak perlu bottom nav (login/register/admin)
+  const hideBottomNav =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname?.startsWith("/admin");
+
   return (
     <html lang="id">
       <body>
-        {/* NAVBAR ATAS */}
+        {/* ===== TOP BAR (LOGO + CS + AUTH) ===== */}
         <header
           style={{
             borderBottom: "1px solid #111827",
@@ -115,50 +118,7 @@ export default function RootLayout({ children }) {
               </div>
             </a>
 
-            {/* Tengah: menu utama */}
-            <nav
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                overflowX: "auto",
-                padding: "4px 0",
-                flex: 1
-              }}
-            >
-              {/* Landing page: hanya Beranda */}
-              {isLanding && (
-                <a href="/" style={navLink}>
-                  Beranda
-                </a>
-              )}
-
-              {/* Dashboard: tampil menu lengkap */}
-              {!isLanding && (
-                <>
-                  <a href="/" style={navLink}>
-                    Beranda
-                  </a>
-                  <a href="/products" style={navLink}>
-                    Produk
-                  </a>
-                  <a href="/services" style={navLink}>
-                    Layanan
-                  </a>
-                  <a href="/portfolio-history" style={navLink}>
-                    Portofolio
-                  </a>
-                  <a href="/wallet" style={navLink}>
-                    Dompet
-                  </a>
-                  <a href="/profile" style={navLink}>
-                    Profil
-                  </a>
-                </>
-              )}
-            </nav>
-
-            {/* Kanan: tombol CS + auth */}
+            {/* Kanan: CS + Auth */}
             <div
               style={{
                 display: "flex",
@@ -181,7 +141,7 @@ export default function RootLayout({ children }) {
                 CS
               </a>
 
-              {/* Jika belum login → tampil Daftar & Login */}
+              {/* Belum login → Daftar & Login */}
               {!checking && !loggedIn && (
                 <>
                   <a
@@ -209,7 +169,7 @@ export default function RootLayout({ children }) {
                 </>
               )}
 
-              {/* Jika sudah login → hanya tombol Logout */}
+              {/* Sudah login → Logout */}
               {!checking && loggedIn && (
                 <button
                   type="button"
@@ -232,17 +192,107 @@ export default function RootLayout({ children }) {
           </div>
         </header>
 
-        {/* KONTEN UTAMA */}
+        {/* ===== KONTEN UTAMA ===== */}
         <main
           style={{
             maxWidth: "1040px",
             margin: "0 auto",
-            padding: "16px 10px 32px 10px",
+            padding: "16px 10px 80px 10px", // ekstra space bawah untuk bottom nav
             boxSizing: "border-box"
           }}
         >
           {children}
         </main>
+
+        {/* ===== BOTTOM NAVIGATION (BERANDA, PRODUK, LAYANAN, DOMPET, PROFIL) ===== */}
+        {!hideBottomNav && (
+          <nav
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "62px",
+              display: "flex",
+              justifyContent: "space-around",
+              alignItems: "center",
+              backgroundColor: "rgba(2,6,23,0.96)",
+              borderTop: "1px solid #1f2937",
+              backdropFilter: "blur(10px)",
+              zIndex: 100
+            }}
+          >
+            {/* Beranda */}
+            <a
+              href="/"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                textDecoration: "none",
+                color: pathname === "/" ? "#facc15" : "#e5e7eb"
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>🏠</div>
+              Beranda
+            </a>
+
+            {/* Produk */}
+            <a
+              href="/products"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                textDecoration: "none",
+                color: pathname === "/products" ? "#facc15" : "#e5e7eb"
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>📦</div>
+              Produk
+            </a>
+
+            {/* Layanan */}
+            <a
+              href="/services"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                textDecoration: "none",
+                color: pathname === "/services" ? "#facc15" : "#e5e7eb"
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>🪙</div>
+              Layanan
+            </a>
+
+            {/* Dompet */}
+            <a
+              href="/wallet"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                textDecoration: "none",
+                color: pathname === "/wallet" ? "#facc15" : "#e5e7eb"
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>💰</div>
+              Dompet
+            </a>
+
+            {/* Profil */}
+            <a
+              href="/profile"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                textDecoration: "none",
+                color: pathname === "/profile" ? "#facc15" : "#e5e7eb"
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>👤</div>
+              Profil
+            </a>
+          </nav>
+        )}
       </body>
     </html>
   );

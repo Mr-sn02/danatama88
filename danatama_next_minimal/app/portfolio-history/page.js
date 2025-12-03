@@ -8,8 +8,10 @@ export default function PortfolioHistoryPage() {
   const [checking, setChecking] = useState(true);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [message, setMessage] = useState("");
 
-  // Harga pasar SIMULASI (bisa akhi ubah kapan saja)
+  // Harga pasar SIMULASI (bisa diubah kapan saja)
   const currentPrices = {
     BBCA: 37000,
     BBRI: 5200,
@@ -108,6 +110,25 @@ export default function PortfolioHistoryPage() {
     return sum + (cur - buy) * qty;
   }, 0);
 
+  async function handleDeleteRow(id) {
+    setMessage("");
+    if (!window.confirm("Yakin ingin menghapus baris portofolio ini?")) return;
+
+    setDeletingId(id);
+    const { error } = await supabase.from("portfolios").delete().eq("id", id);
+    setDeletingId(null);
+
+    if (error) {
+      console.error(error);
+      setMessage("Gagal menghapus data: " + error.message);
+      return;
+    }
+
+    // Hapus dari state lokal
+    setRows((prev) => prev.filter((r) => r.id !== id));
+    setMessage("Baris portofolio berhasil dihapus.");
+  }
+
   return (
     <div>
       <h1
@@ -125,12 +146,25 @@ export default function PortfolioHistoryPage() {
           fontSize: "13px",
           color: "#cbd5e1",
           marginTop: 0,
-          marginBottom: "16px"
+          marginBottom: "12px"
         }}
       >
         Data ini diambil dari tabel <code>portfolios</code> di Supabase untuk
         akun Anda. Harga pasar pada kolom P/L bersifat simulasi.
       </p>
+
+      {message && (
+        <p
+          style={{
+            fontSize: "12px",
+            color: "#9ca3af",
+            marginTop: 0,
+            marginBottom: "12px"
+          }}
+        >
+          {message}
+        </p>
+      )}
 
       {loading ? (
         <p style={{ fontSize: "14px", color: "#9ca3af" }}>Memuat data…</p>
@@ -185,6 +219,7 @@ export default function PortfolioHistoryPage() {
                   <th style={thStyle}>Harga Pasar</th>
                   <th style={thStyle}>P/L</th>
                   <th style={thStyle}>P/L %</th>
+                  <th style={thStyle}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,6 +255,25 @@ export default function PortfolioHistoryPage() {
                       <td style={{ ...tdStyle, color: plColor }}>
                         {pl >= 0 ? "+" : "-"}
                         {Math.abs(plPct).toFixed(2)}%
+                      </td>
+                      <td style={tdStyle}>
+                        <button
+                          onClick={() => handleDeleteRow(row.id)}
+                          disabled={deletingId === row.id}
+                          style={{
+                            backgroundColor: "#ef4444",
+                            color: "#f9fafb",
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "6px 10px",
+                            fontSize: "12px",
+                            cursor:
+                              deletingId === row.id ? "default" : "pointer",
+                            opacity: deletingId === row.id ? 0.7 : 1
+                          }}
+                        >
+                          {deletingId === row.id ? "Menghapus…" : "Hapus"}
+                        </button>
                       </td>
                     </tr>
                   );

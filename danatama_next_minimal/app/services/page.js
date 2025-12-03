@@ -66,8 +66,6 @@ export default function ServicesPage() {
         "Dukungan proses IPO dan aksi korporasi lainnya",
         "Koordinasi dengan regulator dan otoritas terkait"
       ],
-      note:
-        "Sebagian besar layanan ini tersedia melalui kantor pusat Danatama Makmur Sekuritas, bukan melalui aplikasi retail."
     },
     {
       id: 6,

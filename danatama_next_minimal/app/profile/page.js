@@ -97,7 +97,7 @@ export default function ProfilePage() {
             Informasi di bawah ini bersumber dari{" "}
             <strong>data pendaftaran aplikasi</strong> dan digunakan untuk
             kebutuhan Management. Ini <strong>data KYC resmi</strong> dan
-            terhubung ke sistem sekuritas sungguhan.
+            terhubung ke sistem sekuritas.
           </p>
         </div>
 

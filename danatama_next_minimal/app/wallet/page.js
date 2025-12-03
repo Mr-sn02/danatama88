@@ -18,7 +18,7 @@ export default function WalletPage() {
     proofName: ""
   });
 
-  // Form Withdraw (mirip screenshot akhi)
+  // Form Withdraw
   const [withdraw, setWithdraw] = useState({
     amount: "",
     bankName: "",
@@ -211,29 +211,33 @@ export default function WalletPage() {
 
   // ========== HANDLING USER SESSION ==========
   if (checking) {
-    return <p style={{ color: "#9ca3af" }}>Memeriksa sesi...</p>;
+    return <p style={{ color: "#9ca3af", padding: "12px" }}>Memeriksa sesi...</p>;
   }
 
   if (!user) {
     return (
-      <div style={loginBox}>
-        <h1 style={loginTitle}>Butuh Login</h1>
-        <p style={loginText}>
-          Untuk mengakses dompet simulasi Danatama, silakan login terlebih dulu.
-        </p>
+      <div style={pageWrapper}>
+        <div style={loginBox}>
+          <h1 style={loginTitle}>Butuh Login</h1>
+          <p style={loginText}>
+            Untuk mengakses dompet simulasi Danatama, silakan login terlebih dulu.
+          </p>
 
-        <a href="/login" style={loginButton}>
-          Pergi ke Login
-        </a>
+          <a href="/login" style={loginButton}>
+            Pergi ke Login
+          </a>
+        </div>
       </div>
     );
   }
 
   // ========== UI DOMPET ==========
   return (
-    <div>
-      <h1 style={{ color: "#fbbf24" }}>Dompet Simulasi</h1>
-      <p style={{ color: "#cbd5e1", fontSize: "13px" }}>
+    <div style={pageWrapper}>
+      <h1 style={{ color: "#fbbf24", marginBottom: "4px", fontSize: "20px" }}>
+        Dompet Simulasi
+      </h1>
+      <p style={{ color: "#cbd5e1", fontSize: "13px", marginTop: 0 }}>
         Deposit & Withdraw akan diproses oleh admin. Saldo hanya berubah jika
         status transaksi <strong>APPROVED</strong>.
       </p>
@@ -246,7 +250,11 @@ export default function WalletPage() {
           highlight
         />
         <SummaryCard label="Total Deposit (APPROVED)" value={summary.deposit} />
-        <SummaryCard label="Total Withdraw (APPROVED)" value={summary.withdraw} negative />
+        <SummaryCard
+          label="Total Withdraw (APPROVED)"
+          value={summary.withdraw}
+          negative
+        />
       </div>
 
       {/* ======================== FORM DEPOSIT ======================== */}
@@ -342,25 +350,31 @@ export default function WalletPage() {
             style={inputStyle}
           />
 
-          <label style={labelStyle}>Nama Bank / E-Wallet</label>
-          <input
-            type="text"
-            name="bankName"
-            value={withdraw.bankName}
-            onChange={handleWithdrawChange}
-            placeholder="contoh: BCA / BRI / Dana"
-            style={inputStyle}
-          />
-
-          <label style={labelStyle}>Nomor Rekening / Akun</label>
-          <input
-            type="text"
-            name="accountNumber"
-            value={withdraw.accountNumber}
-            onChange={handleWithdrawChange}
-            placeholder="contoh: 1234567890"
-            style={inputStyle}
-          />
+          {/* 2 kolom yang bisa wrap di HP */}
+          <div style={twoColWrap}>
+            <div style={colItem}>
+              <label style={labelStyle}>Nama Bank / E-Wallet</label>
+              <input
+                type="text"
+                name="bankName"
+                value={withdraw.bankName}
+                onChange={handleWithdrawChange}
+                placeholder="contoh: BCA / BRI / Dana"
+                style={inputStyle}
+              />
+            </div>
+            <div style={colItem}>
+              <label style={labelStyle}>Nomor Rekening / Akun</label>
+              <input
+                type="text"
+                name="accountNumber"
+                value={withdraw.accountNumber}
+                onChange={handleWithdrawChange}
+                placeholder="contoh: 1234567890"
+                style={inputStyle}
+              />
+            </div>
+          </div>
 
           <label style={labelStyle}>Nama Pemilik Rekening</label>
           <input
@@ -390,7 +404,14 @@ export default function WalletPage() {
 
       {/* Pesan sistem */}
       {message && (
-        <p style={{ color: "#9ca3af", fontSize: "13px", marginTop: "12px" }}>
+        <p
+          style={{
+            color: "#9ca3af",
+            fontSize: "13px",
+            marginTop: "4px",
+            marginBottom: "12px"
+          }}
+        >
           {message}
         </p>
       )}
@@ -421,7 +442,12 @@ export default function WalletPage() {
                     {new Date(tx.created_at).toLocaleString("id-ID")}
                   </td>
                   <td style={tdStyle}>
-                    <span style={{ color: tx.type === "DEPOSIT" ? "#4ade80" : "#f87171" }}>
+                    <span
+                      style={{
+                        color: tx.type === "DEPOSIT" ? "#4ade80" : "#f87171",
+                        fontWeight: 600
+                      }}
+                    >
                       {tx.type}
                     </span>
                   </td>
@@ -436,14 +462,18 @@ export default function WalletPage() {
                             ? "#4ade80"
                             : tx.status === "REJECTED"
                             ? "#f87171"
-                            : "#fbbf24"
+                            : "#fbbf24",
+                        fontWeight: 600,
+                        fontSize: "12px"
                       }}
                     >
                       {tx.status}
                     </span>
                   </td>
-                  <td style={tdStyle}>
-                    {tx.description || <span style={{ color: "#64748b" }}>-</span>}
+                  <td style={{ ...tdStyle, wordBreak: "break-word" }}>
+                    {tx.description || (
+                      <span style={{ color: "#64748b" }}>-</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -459,16 +489,7 @@ export default function WalletPage() {
 
 function SummaryCard({ label, value, highlight = false, negative = false }) {
   return (
-    <div
-      style={{
-        backgroundColor: "#020617",
-        border: "1px solid #1f2937",
-        padding: "12px",
-        borderRadius: "12px",
-        minWidth: "180px",
-        flex: "1"
-      }}
-    >
+    <div style={summaryCard}>
       <div style={{ fontSize: "11px", color: "#9ca3af" }}>{label}</div>
       <div
         style={{
@@ -483,35 +504,51 @@ function SummaryCard({ label, value, highlight = false, negative = false }) {
   );
 }
 
-/* ———————— STYLES ———————— */
+/* ———————— STYLES (dibuat aman untuk HP) ———————— */
+
+const pageWrapper = {
+  maxWidth: "960px",
+  margin: "0 auto",
+  padding: "12px 10px 24px 10px" // ada padding kanan kiri supaya lega di HP
+};
 
 const summaryGrid = {
   display: "flex",
-  gap: "16px",
+  gap: "12px",
   marginBottom: "20px",
   flexWrap: "wrap"
+};
+
+const summaryCard = {
+  backgroundColor: "#020617",
+  border: "1px solid #1f2937",
+  padding: "10px 12px",
+  borderRadius: "12px",
+  minWidth: "140px",
+  flex: "1 1 140px" // di HP jadi 1 kolom, di desktop bisa beberapa kolom
 };
 
 const card = {
   backgroundColor: "#020617",
   border: "1px solid #1f2937",
-  padding: "20px",
+  padding: "16px",
   borderRadius: "16px",
-  marginBottom: "24px",
-  maxWidth: "800px"
+  marginBottom: "20px",
+  width: "100%",        // selalu full width
+  boxSizing: "border-box"
 };
 
 const cardTitle = {
   color: "#e5e7eb",
   margin: 0,
-  marginBottom: "12px",
+  marginBottom: "10px",
   fontSize: "16px"
 };
 
 const labelStyle = {
   display: "block",
   marginBottom: "6px",
-  marginTop: "10px",
+  marginTop: "8px",
   color: "#e5e7eb",
   fontSize: "13px"
 };
@@ -523,13 +560,25 @@ const inputStyle = {
   border: "1px solid #334155",
   borderRadius: "8px",
   color: "#e5e7eb",
-  fontSize: "13px"
+  fontSize: "13px",
+  boxSizing: "border-box"
+};
+
+const twoColWrap = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px"
+};
+
+const colItem = {
+  flex: "1 1 150px",
+  minWidth: "0"
 };
 
 const fileBox = {
   position: "relative",
   width: "100%",
-  marginBottom: "10px"
+  marginBottom: "4px"
 };
 
 const fileInput = {
@@ -547,13 +596,16 @@ const fileFake = {
 };
 
 const submitButton = {
-  marginTop: "14px",
+  marginTop: "12px",
   backgroundColor: "#eab308",
   padding: "10px 16px",
   borderRadius: "999px",
   border: "none",
   fontWeight: 700,
-  cursor: "pointer"
+  cursor: "pointer",
+  width: "100%",
+  fontSize: "14px",
+  boxSizing: "border-box"
 };
 
 const withdrawButton = {
@@ -563,12 +615,13 @@ const withdrawButton = {
 
 const loginBox = {
   maxWidth: "420px",
-  margin: "20px auto",
+  margin: "40px auto",
   padding: "20px",
   backgroundColor: "#020617",
   border: "1px solid #1f2937",
   borderRadius: "16px",
-  textAlign: "center"
+  textAlign: "center",
+  boxSizing: "border-box"
 };
 
 const loginTitle = { color: "#fbbf24", marginBottom: "8px" };
@@ -579,37 +632,43 @@ const loginButton = {
   padding: "10px 16px",
   borderRadius: "8px",
   fontWeight: 700,
-  color: "#111"
+  color: "#111",
+  textDecoration: "none",
+  fontSize: "14px"
 };
 
 const historyTitle = {
   color: "#e5e7eb",
-  marginTop: "20px",
-  marginBottom: "12px"
+  marginTop: "12px",
+  marginBottom: "8px",
+  fontSize: "16px"
 };
 
 const historyBox = {
   border: "1px solid #334155",
   borderRadius: "12px",
-  overflowX: "auto",
+  overflowX: "auto", // di HP tabel bisa digeser horizontal
   backgroundColor: "#020617"
 };
 
 const tableStyle = {
   width: "100%",
   borderCollapse: "collapse",
-  fontSize: "13px"
+  fontSize: "12px",   // sedikit lebih kecil supaya muat di HP
+  minWidth: "520px"   // supaya kolom tidak terlalu sempit, sisanya di-scroll
 };
 
 const thStyle = {
-  padding: "10px",
+  padding: "8px",
   borderBottom: "1px solid #1f2937",
   color: "#e5e7eb",
-  textAlign: "left"
+  textAlign: "left",
+  whiteSpace: "nowrap"
 };
 
 const tdStyle = {
-  padding: "10px",
+  padding: "8px",
   borderBottom: "1px solid #1f2937",
-  color: "#e5e7eb"
+  color: "#e5e7eb",
+  verticalAlign: "top"
 };

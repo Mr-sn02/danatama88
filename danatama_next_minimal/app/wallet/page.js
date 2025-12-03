@@ -9,34 +9,30 @@ export default function WalletPage() {
   const [loadingTx, setLoadingTx] = useState(false);
   const [transactions, setTransactions] = useState([]);
 
-  // Form Deposit
   const [deposit, setDeposit] = useState({
     amount: "",
     senderName: "",
     note: "",
     targetAccount: "BCA - 1234567890 a.n. DANATAMA",
-    proofName: ""
+    proofName: "",
   });
 
-  // Form Withdraw
   const [withdraw, setWithdraw] = useState({
     amount: "",
     bankName: "",
     accountNumber: "",
     accountName: "",
-    note: ""
+    note: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Ambil user + transaksi
   useEffect(() => {
     async function fetchUserAndTx() {
       const { data, error } = await supabase.auth.getUser();
       if (!error && data?.user) {
         setUser(data.user);
-
         setLoadingTx(true);
         const { data: tx } = await supabase
           .from("wallet_transactions")
@@ -52,12 +48,10 @@ export default function WalletPage() {
     fetchUserAndTx();
   }, []);
 
-  // Hitung saldo yg APPROVED
   const summary = transactions.reduce(
     (acc, tx) => {
       if (tx.status !== "APPROVED") return acc;
       const amt = Number(tx.amount);
-
       if (tx.type === "DEPOSIT") {
         acc.deposit += amt;
         acc.balance += amt;
@@ -81,7 +75,6 @@ export default function WalletPage() {
     setWithdraw((prev) => ({ ...prev, [name]: value }));
   }
 
-  // ========== SUBMIT DEPOSIT ==========
   async function handleSubmitDeposit(e) {
     e.preventDefault();
     setMessage("");
@@ -96,7 +89,7 @@ export default function WalletPage() {
       deposit.senderName ? `Atas nama: ${deposit.senderName}` : "",
       deposit.note ? `Catatan: ${deposit.note}` : "",
       deposit.targetAccount ? `Tujuan: ${deposit.targetAccount}` : "",
-      deposit.proofName ? `Bukti: ${deposit.proofName} (simulasi)` : ""
+      deposit.proofName ? `Bukti: ${deposit.proofName} (simulasi)` : "",
     ]
       .filter(Boolean)
       .join(" | ");
@@ -108,7 +101,7 @@ export default function WalletPage() {
       type: "DEPOSIT",
       amount: amountNum,
       description: desc,
-      status: "PENDING"
+      status: "PENDING",
     });
 
     setSubmitting(false);
@@ -126,9 +119,9 @@ export default function WalletPage() {
         amount: amountNum,
         description: desc,
         status: "PENDING",
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       },
-      ...prev
+      ...prev,
     ]);
 
     setDeposit({
@@ -136,19 +129,17 @@ export default function WalletPage() {
       senderName: "",
       note: "",
       targetAccount: "BCA - 1234567890 a.n. DANATAMA",
-      proofName: ""
+      proofName: "",
     });
 
     setMessage("Deposit berhasil diajukan. Menunggu persetujuan admin.");
   }
 
-  // ========== SUBMIT WITHDRAW ==========
   async function handleSubmitWithdraw(e) {
     e.preventDefault();
     setMessage("");
 
     const amountNum = Number(withdraw.amount);
-
     if (!amountNum || amountNum <= 0) {
       setMessage("Nominal harus lebih besar dari 0.");
       return;
@@ -163,7 +154,7 @@ export default function WalletPage() {
       withdraw.bankName ? `Bank: ${withdraw.bankName}` : "",
       withdraw.accountNumber ? `No Rek: ${withdraw.accountNumber}` : "",
       withdraw.accountName ? `Atas nama: ${withdraw.accountName}` : "",
-      withdraw.note ? `Catatan: ${withdraw.note}` : ""
+      withdraw.note ? `Catatan: ${withdraw.note}` : "",
     ]
       .filter(Boolean)
       .join(" | ");
@@ -175,7 +166,7 @@ export default function WalletPage() {
       type: "WITHDRAW",
       amount: amountNum,
       description: desc,
-      status: "PENDING"
+      status: "PENDING",
     });
 
     setSubmitting(false);
@@ -193,9 +184,9 @@ export default function WalletPage() {
         amount: amountNum,
         description: desc,
         status: "PENDING",
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       },
-      ...prev
+      ...prev,
     ]);
 
     setWithdraw({
@@ -203,27 +194,30 @@ export default function WalletPage() {
       bankName: "",
       accountNumber: "",
       accountName: "",
-      note: ""
+      note: "",
     });
 
     setMessage("Penarikan berhasil diajukan dan menunggu ACC admin.");
   }
 
-  // ========== HANDLING USER SESSION ==========
   if (checking) {
-    return <p style={{ color: "#9ca3af", padding: "12px" }}>Memeriksa sesi...</p>;
+    return (
+      <div className="dt-container">
+        <p className="dt-muted">Memeriksa sesi…</p>
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div style={pageWrapper}>
-        <div style={loginBox}>
-          <h1 style={loginTitle}>Butuh Login</h1>
-          <p style={loginText}>
-            Untuk mengakses dompet simulasi Danatama, silakan login terlebih dulu.
+      <div className="dt-container">
+        <div className="dt-card" style={{ maxWidth: 420, margin: "0 auto" }}>
+          <h1 style={{ color: "#fbbf24", fontSize: 20 }}>Butuh Login</h1>
+          <p className="dt-soft dt-mt-2" style={{ fontSize: 13 }}>
+            Untuk mengakses dompet simulasi Danatama, silakan login terlebih
+            dulu.
           </p>
-
-          <a href="/login" style={loginButton}>
+          <a href="/login" className="dt-btn dt-btn-primary dt-mt-3">
             Pergi ke Login
           </a>
         </div>
@@ -231,74 +225,110 @@ export default function WalletPage() {
     );
   }
 
-  // ========== UI DOMPET ==========
   return (
-    <div style={pageWrapper}>
-      <h1 style={{ color: "#fbbf24", marginBottom: "4px", fontSize: "20px" }}>
-        Dompet Simulasi
+    <div className="dt-container">
+      <span className="dt-badge dt-badge-gold">Dompet Simulasi</span>
+      <h1
+        className="dt-mt-2"
+        style={{ color: "#fbbf24", fontSize: 20, marginBottom: 4 }}
+      >
+        Dompet Danatama
       </h1>
-      <p style={{ color: "#cbd5e1", fontSize: "13px", marginTop: 0 }}>
-        Deposit & Withdraw akan diproses oleh admin. Saldo hanya berubah jika
+      <p className="dt-soft" style={{ fontSize: 13 }}>
+        Deposit &amp; Withdraw akan diproses oleh admin. Saldo hanya berubah jika
         status transaksi <strong>APPROVED</strong>.
       </p>
 
-      {/* RINGKASAN SALDO */}
-      <div style={summaryGrid}>
-        <SummaryCard
-          label="Saldo Tersedia"
-          value={summary.balance}
-          highlight
-        />
-        <SummaryCard label="Total Deposit (APPROVED)" value={summary.deposit} />
-        <SummaryCard
-          label="Total Withdraw (APPROVED)"
-          value={summary.withdraw}
-          negative
-        />
+      {/* Ringkasan */}
+      <div className="dt-flex dt-flex-wrap dt-gap-2 dt-mt-3">
+        <div className="dt-card-soft" style={{ flex: "1 1 140px" }}>
+          <div className="dt-muted" style={{ fontSize: 11 }}>
+            Saldo Tersedia
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "#4ade80",
+              marginTop: 4,
+            }}
+          >
+            Rp {summary.balance.toLocaleString("id-ID")}
+          </div>
+        </div>
+        <div className="dt-card-soft" style={{ flex: "1 1 140px" }}>
+          <div className="dt-muted" style={{ fontSize: 11 }}>
+            Total Deposit (APPROVED)
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "#e5e7eb",
+              marginTop: 4,
+            }}
+          >
+            Rp {summary.deposit.toLocaleString("id-ID")}
+          </div>
+        </div>
+        <div className="dt-card-soft" style={{ flex: "1 1 140px" }}>
+          <div className="dt-muted" style={{ fontSize: 11 }}>
+            Total Withdraw (APPROVED)
+          </div>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "#f97373",
+              marginTop: 4,
+            }}
+          >
+            Rp {summary.withdraw.toLocaleString("id-ID")}
+          </div>
+        </div>
       </div>
 
-      {/* ======================== FORM DEPOSIT ======================== */}
-      <section style={card}>
-        <h2 style={cardTitle}>Ajukan Deposit</h2>
+      {/* DEPOSIT */}
+      <section className="dt-card dt-mt-3">
+        <h2 className="dt-card-title">Ajukan Deposit</h2>
 
         <form onSubmit={handleSubmitDeposit}>
-          <label style={labelStyle}>Nominal Deposit</label>
+          <label className="dt-label">Nominal Deposit</label>
           <input
             type="number"
             name="amount"
             value={deposit.amount}
             onChange={handleDepositChange}
             placeholder="contoh: 100000"
-            style={inputStyle}
+            className="dt-input"
           />
 
-          <label style={labelStyle}>Atas Nama Pengirim</label>
+          <label className="dt-label">Atas Nama Pengirim</label>
           <input
             type="text"
             name="senderName"
             value={deposit.senderName}
             onChange={handleDepositChange}
             placeholder="contoh: nama sesuai rekening"
-            style={inputStyle}
+            className="dt-input"
           />
 
-          <label style={labelStyle}>Catatan (opsional)</label>
+          <label className="dt-label">Catatan (opsional)</label>
           <textarea
             name="note"
             value={deposit.note}
             onChange={handleDepositChange}
             rows={3}
             placeholder="contoh: setor pertama, mohon dibantu"
-            style={{ ...inputStyle, resize: "vertical" }}
+            className="dt-textarea"
           />
 
-          {/* Rekening Tujuan */}
-          <label style={labelStyle}>Rekening Tujuan Deposit</label>
+          <label className="dt-label">Rekening Tujuan Deposit</label>
           <select
             name="targetAccount"
             value={deposit.targetAccount}
             onChange={handleDepositChange}
-            style={inputStyle}
+            className="dt-select"
           >
             <option value="BCA - 1234567890 a.n. DANATAMA">
               BCA - 1234567890 a.n. DANATAMA
@@ -311,150 +341,163 @@ export default function WalletPage() {
             </option>
           </select>
 
-          {/* Bukti Transfer */}
-          <label style={labelStyle}>Bukti Transfer (opsional)</label>
-          <div style={fileBox}>
+          <label className="dt-label">Bukti Transfer (opsional)</label>
+          <div style={{ position: "relative", width: "100%", marginBottom: 4 }}>
             <input
               type="file"
               onChange={(e) =>
                 setDeposit((prev) => ({
                   ...prev,
-                  proofName: e.target.files?.[0]?.name || ""
+                  proofName: e.target.files?.[0]?.name || "",
                 }))
               }
-              style={fileInput}
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                opacity: 0,
+                cursor: "pointer",
+              }}
             />
-            <div style={fileFake}>
+            <div className="dt-input dt-muted" style={{ cursor: "pointer" }}>
               {deposit.proofName || "Pilih file (simulasi)"}
             </div>
           </div>
 
-          <button type="submit" disabled={submitting} style={submitButton}>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="dt-btn dt-btn-primary dt-mt-3"
+            style={{ width: "100%" }}
+          >
             {submitting ? "Mengirim..." : "Ajukan Deposit"}
           </button>
         </form>
       </section>
 
-      {/* ======================== FORM WITHDRAW ======================== */}
-      <section style={card}>
-        <h2 style={cardTitle}>Ajukan Penarikan</h2>
+      {/* WITHDRAW */}
+      <section className="dt-card dt-mt-3">
+        <h2 className="dt-card-title">Ajukan Penarikan</h2>
 
         <form onSubmit={handleSubmitWithdraw}>
-          <label style={labelStyle}>Nominal Penarikan</label>
+          <label className="dt-label">Nominal Penarikan</label>
           <input
             type="number"
             name="amount"
             value={withdraw.amount}
             onChange={handleWithdrawChange}
             placeholder="contoh: 50000"
-            style={inputStyle}
+            className="dt-input"
           />
 
-          {/* 2 kolom yang bisa wrap di HP */}
-          <div style={twoColWrap}>
-            <div style={colItem}>
-              <label style={labelStyle}>Nama Bank / E-Wallet</label>
+          <div className="dt-flex dt-flex-wrap dt-gap-2">
+            <div style={{ flex: "1 1 150px" }}>
+              <label className="dt-label">Nama Bank / E-Wallet</label>
               <input
                 type="text"
                 name="bankName"
                 value={withdraw.bankName}
                 onChange={handleWithdrawChange}
                 placeholder="contoh: BCA / BRI / Dana"
-                style={inputStyle}
+                className="dt-input"
               />
             </div>
-            <div style={colItem}>
-              <label style={labelStyle}>Nomor Rekening / Akun</label>
+            <div style={{ flex: "1 1 150px" }}>
+              <label className="dt-label">Nomor Rekening / Akun</label>
               <input
                 type="text"
                 name="accountNumber"
                 value={withdraw.accountNumber}
                 onChange={handleWithdrawChange}
                 placeholder="contoh: 1234567890"
-                style={inputStyle}
+                className="dt-input"
               />
             </div>
           </div>
 
-          <label style={labelStyle}>Nama Pemilik Rekening</label>
+          <label className="dt-label">Nama Pemilik Rekening</label>
           <input
             type="text"
             name="accountName"
             value={withdraw.accountName}
             onChange={handleWithdrawChange}
             placeholder="contoh: nama lengkap"
-            style={inputStyle}
+            className="dt-input"
           />
 
-          <label style={labelStyle}>Catatan (opsional)</label>
+          <label className="dt-label">Catatan (opsional)</label>
           <textarea
             name="note"
             value={withdraw.note}
             onChange={handleWithdrawChange}
             rows={3}
             placeholder="contoh: tarik untuk kebutuhan tertentu"
-            style={{ ...inputStyle, resize: "vertical" }}
+            className="dt-textarea"
           />
 
-          <button type="submit" disabled={submitting} style={withdrawButton}>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="dt-btn dt-mt-3"
+            style={{
+              width: "100%",
+              backgroundColor: "#f59e0b",
+              color: "#111827",
+            }}
+          >
             {submitting ? "Mengirim..." : "Ajukan Penarikan"}
           </button>
         </form>
       </section>
 
-      {/* Pesan sistem */}
       {message && (
-        <p
-          style={{
-            color: "#9ca3af",
-            fontSize: "13px",
-            marginTop: "4px",
-            marginBottom: "12px"
-          }}
-        >
+        <p className="dt-muted dt-mt-2" style={{ fontSize: 13 }}>
           {message}
         </p>
       )}
 
-      {/* ======================== RIWAYAT TRANSAKSI ======================== */}
-      <h2 style={historyTitle}>Riwayat Transaksi</h2>
+      {/* RIWAYAT */}
+      <h2 className="dt-mt-3" style={{ color: "#e5e7eb", fontSize: 16 }}>
+        Riwayat Transaksi
+      </h2>
 
       {loadingTx ? (
-        <p style={{ color: "#9ca3af" }}>Memuat...</p>
+        <p className="dt-muted">Memuat…</p>
       ) : transactions.length === 0 ? (
-        <p style={{ color: "#9ca3af" }}>Belum ada transaksi.</p>
+        <p className="dt-muted">Belum ada transaksi.</p>
       ) : (
-        <div style={historyBox}>
-          <table style={tableStyle}>
+        <div className="dt-table-wrap dt-mt-2">
+          <table className="dt-table">
             <thead>
               <tr>
-                <th style={thStyle}>Tanggal</th>
-                <th style={thStyle}>Jenis</th>
-                <th style={thStyle}>Nominal</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Keterangan</th>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th>Nominal</th>
+                <th>Status</th>
+                <th>Keterangan</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id}>
-                  <td style={tdStyle}>
+                  <td>
                     {new Date(tx.created_at).toLocaleString("id-ID")}
                   </td>
-                  <td style={tdStyle}>
+                  <td>
                     <span
                       style={{
-                        color: tx.type === "DEPOSIT" ? "#4ade80" : "#f87171",
-                        fontWeight: 600
+                        color:
+                          tx.type === "DEPOSIT" ? "#4ade80" : "#f87171",
+                        fontWeight: 600,
                       }}
                     >
                       {tx.type}
                     </span>
                   </td>
-                  <td style={tdStyle}>
+                  <td>
                     Rp {Number(tx.amount).toLocaleString("id-ID")}
                   </td>
-                  <td style={tdStyle}>
+                  <td>
                     <span
                       style={{
                         color:
@@ -464,13 +507,13 @@ export default function WalletPage() {
                             ? "#f87171"
                             : "#fbbf24",
                         fontWeight: 600,
-                        fontSize: "12px"
+                        fontSize: 12,
                       }}
                     >
                       {tx.status}
                     </span>
                   </td>
-                  <td style={{ ...tdStyle, wordBreak: "break-word" }}>
+                  <td style={{ wordBreak: "break-word" }}>
                     {tx.description || (
                       <span style={{ color: "#64748b" }}>-</span>
                     )}
@@ -484,191 +527,3 @@ export default function WalletPage() {
     </div>
   );
 }
-
-/* ———————— COMPONENTS ———————— */
-
-function SummaryCard({ label, value, highlight = false, negative = false }) {
-  return (
-    <div style={summaryCard}>
-      <div style={{ fontSize: "11px", color: "#9ca3af" }}>{label}</div>
-      <div
-        style={{
-          fontSize: "16px",
-          fontWeight: 700,
-          color: highlight ? "#4ade80" : negative ? "#f87171" : "#e5e7eb"
-        }}
-      >
-        Rp {Number(value).toLocaleString("id-ID")}
-      </div>
-    </div>
-  );
-}
-
-/* ———————— STYLES (dibuat aman untuk HP) ———————— */
-
-const pageWrapper = {
-  maxWidth: "960px",
-  margin: "0 auto",
-  padding: "12px 10px 24px 10px" // ada padding kanan kiri supaya lega di HP
-};
-
-const summaryGrid = {
-  display: "flex",
-  gap: "12px",
-  marginBottom: "20px",
-  flexWrap: "wrap"
-};
-
-const summaryCard = {
-  backgroundColor: "#020617",
-  border: "1px solid #1f2937",
-  padding: "10px 12px",
-  borderRadius: "12px",
-  minWidth: "140px",
-  flex: "1 1 140px" // di HP jadi 1 kolom, di desktop bisa beberapa kolom
-};
-
-const card = {
-  backgroundColor: "#020617",
-  border: "1px solid #1f2937",
-  padding: "16px",
-  borderRadius: "16px",
-  marginBottom: "20px",
-  width: "100%",        // selalu full width
-  boxSizing: "border-box"
-};
-
-const cardTitle = {
-  color: "#e5e7eb",
-  margin: 0,
-  marginBottom: "10px",
-  fontSize: "16px"
-};
-
-const labelStyle = {
-  display: "block",
-  marginBottom: "6px",
-  marginTop: "8px",
-  color: "#e5e7eb",
-  fontSize: "13px"
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "8px",
-  backgroundColor: "#020617",
-  border: "1px solid #334155",
-  borderRadius: "8px",
-  color: "#e5e7eb",
-  fontSize: "13px",
-  boxSizing: "border-box"
-};
-
-const twoColWrap = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "10px"
-};
-
-const colItem = {
-  flex: "1 1 150px",
-  minWidth: "0"
-};
-
-const fileBox = {
-  position: "relative",
-  width: "100%",
-  marginBottom: "4px"
-};
-
-const fileInput = {
-  position: "absolute",
-  width: "100%",
-  height: "100%",
-  opacity: 0,
-  cursor: "pointer"
-};
-
-const fileFake = {
-  ...inputStyle,
-  cursor: "pointer",
-  color: "#9ca3af"
-};
-
-const submitButton = {
-  marginTop: "12px",
-  backgroundColor: "#eab308",
-  padding: "10px 16px",
-  borderRadius: "999px",
-  border: "none",
-  fontWeight: 700,
-  cursor: "pointer",
-  width: "100%",
-  fontSize: "14px",
-  boxSizing: "border-box"
-};
-
-const withdrawButton = {
-  ...submitButton,
-  backgroundColor: "#f59e0b"
-};
-
-const loginBox = {
-  maxWidth: "420px",
-  margin: "40px auto",
-  padding: "20px",
-  backgroundColor: "#020617",
-  border: "1px solid #1f2937",
-  borderRadius: "16px",
-  textAlign: "center",
-  boxSizing: "border-box"
-};
-
-const loginTitle = { color: "#fbbf24", marginBottom: "8px" };
-const loginText = { color: "#cbd5e1", fontSize: "13px" };
-const loginButton = {
-  display: "inline-block",
-  backgroundColor: "#fbbf24",
-  padding: "10px 16px",
-  borderRadius: "8px",
-  fontWeight: 700,
-  color: "#111",
-  textDecoration: "none",
-  fontSize: "14px"
-};
-
-const historyTitle = {
-  color: "#e5e7eb",
-  marginTop: "12px",
-  marginBottom: "8px",
-  fontSize: "16px"
-};
-
-const historyBox = {
-  border: "1px solid #334155",
-  borderRadius: "12px",
-  overflowX: "auto", // di HP tabel bisa digeser horizontal
-  backgroundColor: "#020617"
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: "12px",   // sedikit lebih kecil supaya muat di HP
-  minWidth: "520px"   // supaya kolom tidak terlalu sempit, sisanya di-scroll
-};
-
-const thStyle = {
-  padding: "8px",
-  borderBottom: "1px solid #1f2937",
-  color: "#e5e7eb",
-  textAlign: "left",
-  whiteSpace: "nowrap"
-};
-
-const tdStyle = {
-  padding: "8px",
-  borderBottom: "1px solid #1f2937",
-  color: "#e5e7eb",
-  verticalAlign: "top"
-};

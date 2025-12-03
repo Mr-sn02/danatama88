@@ -163,8 +163,8 @@ export default function ProductsPage() {
     <div className="dt-container">
       {/* Salam & saldo */}
       <p className="dt-soft" style={{ fontSize: 13 }}>
-        Selamat datang, <span className="dt-gold">{displayName}</span>. Simulasi
-        berikut hanya untuk tujuan edukasi.
+        Selamat datang, <span className="dt-gold">{displayName}</span>. Management
+        berikut pengelola dana anda.
       </p>
 
       <div className="dt-flex dt-flex-wrap dt-gap-2 dt-mt-2" style={{ fontSize: 13 }}>
@@ -184,8 +184,8 @@ export default function ProductsPage() {
         Daftar Produk Investasi
       </h1>
       <p className="dt-soft" style={{ fontSize: 13, marginTop: 4 }}>
-        Pilih instrumen investasi yang ingin kamu simulasikan. Total pembelian
-        tidak boleh melebihi saldo dompet simulasi.
+        Pilih instrumen investasi yang ingin kamu Jalankan. Total pembelian
+        tidak boleh melebihi saldo dompet Management.
       </p>
 
       <div

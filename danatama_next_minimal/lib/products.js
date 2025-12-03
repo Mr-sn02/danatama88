@@ -1,6 +1,7 @@
 const products = [
   {
     id: 1,
+    code: "BBCA",
     name: "Saham BBCA",
     price: 35000,
     description:
@@ -8,6 +9,7 @@ const products = [
   },
   {
     id: 2,
+    code: "BBRI",
     name: "Saham BBRI",
     price: 5100,
     description:
@@ -15,6 +17,7 @@ const products = [
   },
   {
     id: 3,
+    code: "TLKM",
     name: "Saham TLKM",
     price: 3900,
     description:
@@ -22,6 +25,7 @@ const products = [
   },
   {
     id: 4,
+    code: "RDPU",
     name: "Reksadana Pasar Uang",
     price: 100000,
     description:
@@ -29,6 +33,7 @@ const products = [
   },
   {
     id: 5,
+    code: "ORIRTL",
     name: "Obligasi Negara Ritel",
     price: 1000000,
     description:

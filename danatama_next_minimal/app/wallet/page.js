@@ -132,7 +132,7 @@ export default function WalletPage() {
       proofName: "",
     });
 
-    setMessage("Deposit berhasil diajukan. Menunggu persetujuan admin.");
+    setMessage("Deposit berhasil diajukan. Menunggu persetujuan Otomatis.");
   }
 
   async function handleSubmitWithdraw(e) {
@@ -197,7 +197,7 @@ export default function WalletPage() {
       note: "",
     });
 
-    setMessage("Penarikan berhasil diajukan dan menunggu ACC admin.");
+    setMessage("Penarikan berhasil diajukan dan menunggu proses otomatis.");
   }
 
   if (checking) {
@@ -214,7 +214,7 @@ export default function WalletPage() {
         <div className="dt-card" style={{ maxWidth: 420, margin: "0 auto" }}>
           <h1 style={{ color: "#fbbf24", fontSize: 20 }}>Butuh Login</h1>
           <p className="dt-soft dt-mt-2" style={{ fontSize: 13 }}>
-            Untuk mengakses dompet simulasi Danatama, silakan login terlebih
+            Untuk mengakses dompet Management Danatama, silakan login terlebih
             dulu.
           </p>
           <a href="/login" className="dt-btn dt-btn-primary dt-mt-3">
@@ -235,8 +235,8 @@ export default function WalletPage() {
         Dompet Danatama
       </h1>
       <p className="dt-soft" style={{ fontSize: 13 }}>
-        Deposit &amp; Withdraw akan diproses oleh admin. Saldo hanya berubah jika
-        status transaksi <strong>APPROVED</strong>.
+        Deposit &amp; Withdraw akan diproses secara Otomatis. Saldo hanya 
+        berubah jika status transaksi <strong>APPROVED</strong>.
       </p>
 
       {/* Ringkasan */}

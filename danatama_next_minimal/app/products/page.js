@@ -11,7 +11,6 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
-  // Data dompet
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
 
@@ -21,7 +20,6 @@ export default function ProductsPage() {
       if (!error && data?.user) {
         setUser(data.user);
 
-        // Ambil transaksi dompet yang APPROVED saja
         setWalletLoading(true);
         const { data: tx, error: txErr } = await supabase
           .from("wallet_transactions")
@@ -38,7 +36,6 @@ export default function ProductsPage() {
           }, 0);
           setWalletBalance(saldo);
         }
-
         setWalletLoading(false);
       }
       setCheckingUser(false);
@@ -54,7 +51,7 @@ export default function ProductsPage() {
         return prev.map((item) =>
           item.id === product.id ? { ...item, qty: item.qty + 1 } : item
         );
-    }
+      }
       return [...prev, { ...product, qty: 1 }];
     });
   }
@@ -65,7 +62,10 @@ export default function ProductsPage() {
   );
 
   const displayName =
-    user?.user_metadata?.username || user?.email || "Nasabah";
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.username ||
+    user?.email ||
+    "Nasabah";
 
   async function handleSavePortfolio() {
     setSaveMessage("");
@@ -80,7 +80,6 @@ export default function ProductsPage() {
       return;
     }
 
-    // Cek saldo cukup
     if (subtotal > walletBalance) {
       setSaveMessage(
         "Saldo dompet simulasi tidak mencukupi. Silakan lakukan deposit dan menunggu ACC admin di menu Dompet."
@@ -90,18 +89,15 @@ export default function ProductsPage() {
 
     setSaving(true);
 
-    // 1) Simpan baris-baris portofolio
     const rows = cart.map((item) => ({
       user_id: user.id,
       code: item.code,
       name: item.name,
       qty: item.qty,
-      avg_price: item.price
+      avg_price: item.price,
     }));
 
-    const { error: portError } = await supabase
-      .from("portfolios")
-      .insert(rows);
+    const { error: portError } = await supabase.from("portfolios").insert(rows);
 
     if (portError) {
       console.error(portError);
@@ -110,7 +106,6 @@ export default function ProductsPage() {
       return;
     }
 
-    // 2) Catat transaksi dompet sebagai WITHDRAW APPROVED
     const { error: walletError } = await supabase
       .from("wallet_transactions")
       .insert({
@@ -118,7 +113,7 @@ export default function ProductsPage() {
         type: "WITHDRAW",
         amount: subtotal,
         description: "Simulasi pembelian produk investasi",
-        status: "APPROVED"
+        status: "APPROVED",
       });
 
     setSaving(false);
@@ -132,7 +127,6 @@ export default function ProductsPage() {
       return;
     }
 
-    // Update saldo lokal & kosongkan keranjang
     setWalletBalance((prev) => prev - subtotal);
     setCart([]);
     setSaveMessage(
@@ -140,74 +134,24 @@ export default function ProductsPage() {
     );
   }
 
-  // Styles bersama (supaya rapi di HP & desktop)
-  const pageWrapper = {
-    maxWidth: "960px",
-    margin: "0 auto",
-    padding: "12px 10px 24px 10px",
-    boxSizing: "border-box"
-  };
-
   if (checkingUser) {
     return (
-      <div style={pageWrapper}>
-        <p style={{ fontSize: "14px", color: "#9ca3af" }}>
-          Mengecek sesi login…
-        </p>
+      <div className="dt-container">
+        <p className="dt-muted">Mengecek sesi login…</p>
       </div>
     );
   }
 
-  // 🚫 Kalau belum login
   if (!user) {
     return (
-      <div style={pageWrapper}>
-        <div
-          style={{
-            maxWidth: "420px",
-            margin: "0 auto",
-            backgroundColor: "#020617",
-            borderRadius: "16px",
-            border: "1px solid #1f2937",
-            padding: "20px",
-            textAlign: "center",
-            boxSizing: "border-box"
-          }}
-        >
-          <h1
-            style={{
-              color: "#fbbf24",
-              marginTop: 0,
-              marginBottom: "8px",
-              fontSize: "20px"
-            }}
-          >
-            Butuh Login
-          </h1>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#cbd5e1",
-              marginTop: 0,
-              marginBottom: "12px"
-            }}
-          >
+      <div className="dt-container">
+        <div className="dt-card" style={{ maxWidth: 420, margin: "0 auto" }}>
+          <h1 style={{ color: "#fbbf24", fontSize: 20 }}>Butuh Login</h1>
+          <p className="dt-soft dt-mt-2" style={{ fontSize: 13 }}>
             Untuk mengakses simulasi produk investasi, silakan login terlebih
             dahulu dengan akun Danatama.
           </p>
-          <a
-            href="/login"
-            style={{
-              display: "inline-block",
-              textDecoration: "none",
-              backgroundColor: "#fbbf24",
-              color: "#111827",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              fontWeight: 700,
-              fontSize: "14px"
-            }}
-          >
+          <a href="/login" className="dt-btn dt-btn-primary dt-mt-3">
             Pergi ke Halaman Login
           </a>
         </div>
@@ -215,68 +159,31 @@ export default function ProductsPage() {
     );
   }
 
-  // ✅ Tampilan saat sudah login
   return (
-    <div style={pageWrapper}>
-      {/* Salam & saldo dompet */}
-      <p
-        style={{
-          fontSize: "13px",
-          color: "#a5b4fc",
-          marginTop: 0,
-          marginBottom: "4px"
-        }}
-      >
-        Selamat datang, <strong>{displayName}</strong>. Simulasi berikut hanya
-        untuk tujuan edukasi.
+    <div className="dt-container">
+      {/* Salam & saldo */}
+      <p className="dt-soft" style={{ fontSize: 13 }}>
+        Selamat datang, <span className="dt-gold">{displayName}</span>. Simulasi
+        berikut hanya untuk tujuan edukasi.
       </p>
 
-      <div
-        style={{
-          fontSize: "13px",
-          color: "#e5e7eb",
-          marginBottom: "16px",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "8px",
-          alignItems: "center"
-        }}
-      >
+      <div className="dt-flex dt-flex-wrap dt-gap-2 dt-mt-2" style={{ fontSize: 13 }}>
         <span>Saldo Dompet Simulasi (APPROVED):</span>
-        <span
-          style={{
-            fontWeight: 700,
-            color: "#4ade80"
-          }}
-        >
+        <span style={{ fontWeight: 700, color: "#4ade80" }}>
           {walletLoading
             ? "Memuat…"
             : `Rp ${walletBalance.toLocaleString("id-ID")}`}
         </span>
-        <a
-          href="/wallet"
-          style={{
-            fontSize: "12px",
-            color: "#38bdf8",
-            textDecoration: "none"
-          }}
-        >
-          Kelola di menu Dompet &rarr;
+        <a href="/wallet" style={{ fontSize: 12 }} className="dt-muted">
+          Kelola di menu Dompet →
         </a>
       </div>
 
-      {/* Daftar produk */}
-      <h1 style={{ color: "#fbbf24", marginTop: 0, fontSize: "20px" }}>
+      {/* GRID PRODUK */}
+      <h1 className="dt-mt-3" style={{ color: "#fbbf24", fontSize: 20 }}>
         Daftar Produk Investasi
       </h1>
-      <p
-        style={{
-          marginBottom: "16px",
-          color: "#cbd5e1",
-          fontSize: "13px",
-          marginTop: "4px"
-        }}
-      >
+      <p className="dt-soft" style={{ fontSize: 13, marginTop: 4 }}>
         Pilih instrumen investasi yang ingin kamu simulasikan. Total pembelian
         tidak boleh melebihi saldo dompet simulasi.
       </p>
@@ -284,29 +191,21 @@ export default function ProductsPage() {
       <div
         style={{
           display: "grid",
-          gap: "12px",
+          gap: 12,
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          marginBottom: "20px"
+          marginTop: 14,
+          marginBottom: 18,
         }}
       >
         {products.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              background: "#020617",
-              borderRadius: "14px",
-              padding: "12px",
-              border: "1px solid #334155",
-              boxSizing: "border-box"
-            }}
-          >
+          <div key={p.id} className="dt-card-soft">
             <div
               style={{
-                fontSize: "11px",
+                fontSize: 11,
                 color: "#9ca3af",
-                marginBottom: "4px",
+                marginBottom: 4,
                 textTransform: "uppercase",
-                letterSpacing: "0.12em"
+                letterSpacing: "0.12em",
               }}
             >
               {p.code}
@@ -315,17 +214,17 @@ export default function ProductsPage() {
               style={{
                 color: "#fbbf24",
                 marginTop: 0,
-                marginBottom: "4px",
-                fontSize: "15px"
+                marginBottom: 4,
+                fontSize: 15,
               }}
             >
               {p.name}
             </h3>
             <p
               style={{
-                fontSize: "13px",
+                fontSize: 13,
                 color: "#cbd5e1",
-                marginBottom: "6px"
+                marginBottom: 6,
               }}
             >
               {p.description}
@@ -334,27 +233,16 @@ export default function ProductsPage() {
               style={{
                 fontWeight: "bold",
                 color: "#38bdf8",
-                marginTop: "4px",
-                marginBottom: "8px",
-                fontSize: "14px"
+                marginTop: 4,
+                marginBottom: 8,
+                fontSize: 14,
               }}
             >
               Rp {p.price.toLocaleString("id-ID")}
             </p>
             <button
-              style={{
-                width: "100%",
-                marginTop: "4px",
-                background: "#fbbf24",
-                color: "#111",
-                padding: "8px 10px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 600,
-                fontSize: "13px",
-                boxSizing: "border-box"
-              }}
+              className="dt-btn dt-btn-primary dt-btn-xs"
+              style={{ width: "100%", marginTop: 4 }}
               onClick={() => handleAddToCart(p)}
             >
               Tambah ke Keranjang
@@ -363,29 +251,12 @@ export default function ProductsPage() {
         ))}
       </div>
 
-      {/* Ringkasan keranjang */}
-      <section
-        style={{
-          background: "#020617",
-          borderRadius: "14px",
-          border: "1px solid #334155",
-          padding: "14px",
-          boxSizing: "border-box"
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "16px",
-            marginTop: 0,
-            marginBottom: "8px",
-            color: "#fbbf24"
-          }}
-        >
-          Ringkasan Keranjang Investasi
-        </h2>
+      {/* KERANJANG */}
+      <section className="dt-card">
+        <h2 className="dt-card-title">Ringkasan Keranjang Investasi</h2>
 
         {cart.length === 0 ? (
-          <p style={{ fontSize: "13px", color: "#9ca3af" }}>
+          <p className="dt-muted" style={{ fontSize: 13 }}>
             Keranjang masih kosong. Tambahkan saham atau produk lain untuk
             melihat simulasi nominal investasi.
           </p>
@@ -396,7 +267,7 @@ export default function ProductsPage() {
                 listStyle: "none",
                 padding: 0,
                 margin: 0,
-                marginBottom: "10px"
+                marginBottom: 10,
               }}
             >
               {cart.map((item) => (
@@ -406,10 +277,10 @@ export default function ProductsPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    fontSize: "13px",
+                    fontSize: 13,
                     padding: "6px 0",
                     borderBottom: "1px solid #1f2937",
-                    gap: "8px"
+                    gap: 8,
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -418,9 +289,9 @@ export default function ProductsPage() {
                     </div>
                     <div
                       style={{
-                        fontSize: "12px",
+                        fontSize: 12,
                         color: "#9ca3af",
-                        marginTop: "2px"
+                        marginTop: 2,
                       }}
                     >
                       Qty: {item.qty} × Rp{" "}
@@ -431,7 +302,7 @@ export default function ProductsPage() {
                     style={{
                       fontWeight: 600,
                       color: "#38bdf8",
-                      whiteSpace: "nowrap"
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Rp{" "}
@@ -441,25 +312,16 @@ export default function ProductsPage() {
               ))}
             </ul>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: "6px",
-                gap: "8px",
-                flexWrap: "wrap"
-              }}
-            >
-              <div style={{ fontWeight: 700, fontSize: "14px" }}>
+            <div className="dt-flex dt-flex-between dt-mt-2 dt-flex-wrap dt-gap-2">
+              <div style={{ fontWeight: 700, fontSize: 14 }}>
                 Total Nominal Investasi
               </div>
               <div
                 style={{
                   fontWeight: 800,
-                  fontSize: "16px",
+                  fontSize: 16,
                   color:
-                    subtotal > walletBalance ? "#f97373" : "#4ade80"
+                    subtotal > walletBalance ? "#f97373" : "#4ade80",
                 }}
               >
                 Rp {subtotal.toLocaleString("id-ID")}
@@ -469,9 +331,9 @@ export default function ProductsPage() {
             {subtotal > walletBalance && (
               <p
                 style={{
-                  fontSize: "12px",
+                  fontSize: 12,
                   color: "#f97373",
-                  marginTop: "4px"
+                  marginTop: 4,
                 }}
               >
                 Total keranjang melebihi saldo dompet simulasi. Kurangi nominal
@@ -480,23 +342,16 @@ export default function ProductsPage() {
             )}
 
             <button
+              className="dt-btn dt-mt-3"
               style={{
-                marginTop: "10px",
-                background:
+                width: "100%",
+                backgroundColor:
                   saving || subtotal > walletBalance ? "#6b7280" : "#1d4ed8",
                 color: "#e5e7eb",
-                padding: "9px 12px",
-                borderRadius: "8px",
-                border: "none",
                 cursor:
                   saving || subtotal > walletBalance
                     ? "default"
                     : "pointer",
-                fontWeight: 600,
-                fontSize: "14px",
-                opacity: saving ? 0.7 : 1,
-                width: "100%",
-                boxSizing: "border-box"
               }}
               onClick={handleSavePortfolio}
               disabled={saving || subtotal > walletBalance}
@@ -505,13 +360,7 @@ export default function ProductsPage() {
             </button>
 
             {saveMessage && (
-              <p
-                style={{
-                  fontSize: "12px",
-                  color: "#9ca3af",
-                  marginTop: "6px"
-                }}
-              >
+              <p className="dt-muted" style={{ fontSize: 12, marginTop: 6 }}>
                 {saveMessage}
               </p>
             )}

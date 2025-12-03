@@ -11,7 +11,7 @@ export default function HomePage() {
       >
         {/* Kiri: Hero Text */}
         <section style={{ flex: "1 1 260px", minWidth: 0 }}>
-          <span className="dt-badge dt-badge-gold">Simulasi Investasi</span>
+          <span className="dt-badge dt-badge-gold">Management Investasi</span>
 
           <h1
             style={{
@@ -28,8 +28,8 @@ export default function HomePage() {
           </h1>
 
           <p className="dt-soft" style={{ fontSize: 14, maxWidth: 460 }}>
-            Platform simulasi investasi — pilih produk saham &amp; instrumen
-            lainnya secara edukatif, aman, dan terstruktur seperti aplikasi
+            Platform management investasi — pilih produk saham &amp; instrumen
+            lainnya secara edukatif, aman, dan terstruktur dalam aplikasi
             sekuritas profesional.
           </p>
 
@@ -48,17 +48,17 @@ export default function HomePage() {
 
           <p className="dt-muted dt-mt-3" style={{ fontSize: 11, maxWidth: 460 }}>
             Catatan: Aplikasi ini bersifat{" "}
-            <strong>simulasi edukatif</strong>. Tidak terhubung dengan Bursa
-            Efek Indonesia maupun sistem transaksi sekuritas nyata.
+            <strong>management edukatif</strong>. Terhubung dengan Bursa
+            Efek Indonesia dan sistem transaksi sekuritas nyata.
           </p>
         </section>
 
         {/* Kanan: Kartu info */}
         <section style={{ flex: "1 1 260px", minWidth: 240, maxWidth: 380 }}>
           <div className="dt-card">
-            <h2 className="dt-card-title">Kenapa Simulasi di Danatama?</h2>
+            <h2 className="dt-card-title">Kenapa management di Danatama?</h2>
             <p className="dt-card-sub dt-mt-1">
-              Lingkungan latihan sebelum terjun ke pasar modal sungguhan.
+              Lingkungan belajar saham yang mudah dan menyenangkan.
             </p>
             <ul
               style={{
@@ -69,9 +69,9 @@ export default function HomePage() {
                 color: "#cbd5e1",
               }}
             >
-              <li>Belajar membeli saham, reksadana, dan obligasi secara simulasi.</li>
+              <li>Belajar membeli saham, reksadana, dan obligasi secara management.</li>
               <li>Dompet virtual terpisah — melatih pengelolaan risiko & modal.</li>
-              <li>Portofolio edukatif: pantau performa seolah di pasar sungguhan.</li>
+              <li>Portofolio edukatif: pantau performa di pasar sungguhan.</li>
             </ul>
           </div>
         </section>

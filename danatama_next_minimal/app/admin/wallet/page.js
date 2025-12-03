@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 
-const ADMIN_EMAILS = ["admin@danatama.co.id"]; // ganti kalau perlu
+const ADMIN_EMAILS = ["sonnnn603@gmail.com"]; // ganti kalau perlu
 
 export default function AdminWalletPage() {
   const [user, setUser] = useState(null);

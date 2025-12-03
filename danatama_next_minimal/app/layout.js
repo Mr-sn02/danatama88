@@ -90,6 +90,9 @@ export default function RootLayout({ children }) {
               <a href="/portfolio-history" style={navLink}>
                 Portofolio
               </a>
+              <a href="/wallet" style={navLink}>
+              Dompet
+              </a>
 
               {/* REGISTER */}
               <a

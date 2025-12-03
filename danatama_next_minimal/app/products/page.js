@@ -11,15 +11,41 @@ export default function ProductsPage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
+  // Data dompet
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchUserAndWallet() {
       const { data, error } = await supabase.auth.getUser();
       if (!error && data?.user) {
         setUser(data.user);
+
+        // Ambil transaksi dompet untuk hitung saldo
+        setWalletLoading(true);
+        const { data: tx, error: txErr } = await supabase
+          .from("wallet_transactions")
+          .select("*")
+          .eq("user_id", data.user.id);
+
+        if (!txErr && tx) {
+          const summary = tx.reduce(
+            (acc, t) => {
+              const amt = Number(t.amount);
+              if (t.type === "DEPOSIT") acc += amt;
+              if (t.type === "WITHDRAW") acc -= amt;
+              return acc;
+            },
+            0
+          );
+          setWalletBalance(summary);
+        }
+
+        setWalletLoading(false);
       }
       setCheckingUser(false);
     }
-    fetchUser();
+    fetchUserAndWallet();
   }, []);
 
   function handleAddToCart(product) {
@@ -44,6 +70,7 @@ export default function ProductsPage() {
 
   async function handleSavePortfolio() {
     setSaveMessage("");
+
     if (!user) {
       setSaveMessage("Anda harus login untuk menyimpan portofolio.");
       return;
@@ -53,8 +80,17 @@ export default function ProductsPage() {
       return;
     }
 
+    // Cek saldo dompet cukup
+    if (subtotal > walletBalance) {
+      setSaveMessage(
+        "Saldo dompet simulasi tidak mencukupi. Silakan lakukan deposit di menu Dompet."
+      );
+      return;
+    }
+
     setSaving(true);
 
+    // 1) Simpan ke tabel portfolios
     const rows = cart.map((item) => ({
       user_id: user.id,
       code: item.code,
@@ -63,18 +99,44 @@ export default function ProductsPage() {
       avg_price: item.price
     }));
 
-    const { error } = await supabase.from("portfolios").insert(rows);
+    const { error: portError } = await supabase
+      .from("portfolios")
+      .insert(rows);
 
-    setSaving(false);
-
-    if (error) {
-      console.error(error);
-      setSaveMessage("Gagal menyimpan ke portofolio: " + error.message);
+    if (portError) {
+      console.error(portError);
+      setSaving(false);
+      setSaveMessage("Gagal menyimpan ke portofolio: " + portError.message);
       return;
     }
 
+    // 2) Catat transaksi dompet sebagai WITHDRAW
+    const { error: walletError } = await supabase
+      .from("wallet_transactions")
+      .insert({
+        user_id: user.id,
+        type: "WITHDRAW",
+        amount: subtotal,
+        description: "Simulasi pembelian produk investasi"
+      });
+
+    setSaving(false);
+
+    if (walletError) {
+      console.error(walletError);
+      setSaveMessage(
+        "Portofolio tersimpan, namun gagal mencatat transaksi dompet: " +
+          walletError.message
+      );
+      return;
+    }
+
+    // Update saldo lokal & kosongkan keranjang
+    setWalletBalance((prev) => prev - subtotal);
+    setCart([]);
+
     setSaveMessage(
-      "Portofolio simulasi berhasil disimpan. Anda bisa melihatnya di halaman Riwayat Portofolio."
+      "Portofolio simulasi berhasil disimpan dan saldo dompet terpotong otomatis."
     );
   }
 
@@ -149,18 +211,54 @@ export default function ProductsPage() {
           fontSize: "13px",
           color: "#a5b4fc",
           marginTop: 0,
-          marginBottom: "8px"
+          marginBottom: "4px"
         }}
       >
         Selamat datang, <strong>{displayName}</strong>. Simulasi berikut hanya
         untuk tujuan edukasi.
       </p>
 
+      {/* RINGKASAN DOMPET DI HALAMAN PRODUK */}
+      <div
+        style={{
+          fontSize: "13px",
+          color: "#e5e7eb",
+          marginBottom: "16px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "12px",
+          alignItems: "center"
+        }}
+      >
+        <span>Saldo Dompet Simulasi:</span>
+        <span
+          style={{
+            fontWeight: 700,
+            color: "#4ade80"
+          }}
+        >
+          {walletLoading
+            ? "Memuat…"
+            : `Rp ${walletBalance.toLocaleString("id-ID")}`}
+        </span>
+        <a
+          href="/wallet"
+          style={{
+            fontSize: "12px",
+            color: "#38bdf8",
+            textDecoration: "none"
+          }}
+        >
+          Kelola di menu Dompet &rarr;
+        </a>
+      </div>
+
       <h1 style={{ color: "#fbbf24", marginTop: 0 }}>
         Daftar Produk Investasi
       </h1>
       <p style={{ marginBottom: "20px", color: "#cbd5e1" }}>
-        Pilih instrumen investasi yang ingin kamu simulasikan.
+        Pilih instrumen investasi yang ingin kamu simulasikan. Total pembelian
+        tidak boleh melebihi saldo dompet simulasi.
       </p>
 
       {/* GRID PRODUK */}
@@ -302,28 +400,46 @@ export default function ProductsPage() {
                 style={{
                   fontWeight: 800,
                   fontSize: "16px",
-                  color: "#4ade80"
+                  color:
+                    subtotal > walletBalance ? "#f97373" : "#4ade80"
                 }}
               >
                 Rp {subtotal.toLocaleString("id-ID")}
               </div>
             </div>
 
+            {subtotal > walletBalance && (
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#f97373",
+                  marginTop: "4px"
+                }}
+              >
+                Total keranjang melebihi saldo dompet simulasi. Kurangi nominal
+                atau lakukan deposit di menu Dompet.
+              </p>
+            )}
+
             <button
               style={{
                 marginTop: "12px",
-                background: "#1d4ed8",
+                background:
+                  subtotal > walletBalance ? "#6b7280" : "#1d4ed8",
                 color: "#e5e7eb",
                 padding: "10px 16px",
                 borderRadius: "8px",
                 border: "none",
-                cursor: saving ? "default" : "pointer",
+                cursor:
+                  saving || subtotal > walletBalance
+                    ? "default"
+                    : "pointer",
                 fontWeight: 600,
                 fontSize: "14px",
                 opacity: saving ? 0.7 : 1
               }}
               onClick={handleSavePortfolio}
-              disabled={saving}
+              disabled={saving || subtotal > walletBalance}
             >
               {saving ? "Menyimpan…" : "Simpan ke Portofolio"}
             </button>

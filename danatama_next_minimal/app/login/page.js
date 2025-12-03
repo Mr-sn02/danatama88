@@ -6,173 +6,170 @@ import { supabase } from "../../lib/supabaseClient";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ contact: "", password: "" });
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  function handleChange(e) {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  }
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
+    setMessage("");
 
-    if (!form.contact || !form.password) {
-      setError("Email dan kata sandi wajib diisi.");
+    if (!email || !password) {
+      setMessage("Email dan kata sandi wajib diisi.");
       return;
     }
 
     setLoading(true);
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email: form.contact,
-      password: form.password
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
 
     setLoading(false);
 
-    if (loginError) {
-      setError(loginError.message || "Gagal login. Periksa email & kata sandi.");
+    if (error) {
+      setMessage(error.message || "Login gagal. Periksa kembali data Anda.");
       return;
     }
 
-    alert("Login berhasil (Supabase).");
-    router.push("/products");
+    if (data?.user) {
+      setMessage("Login berhasil. Mengalihkan...");
+      router.push("/");
+    }
   }
 
+  const pageWrapper = {
+    maxWidth: "960px",
+    margin: "0 auto",
+    padding: "24px 10px",
+    boxSizing: "border-box"
+  };
+
+  const card = {
+    maxWidth: "420px",
+    margin: "0 auto",
+    backgroundColor: "#020617",
+    borderRadius: "16px",
+    border: "1px solid #1f2937",
+    padding: "20px 18px",
+    boxSizing: "border-box"
+  };
+
+  const labelStyle = {
+    display: "block",
+    marginBottom: "6px",
+    marginTop: "10px",
+    color: "#e5e7eb",
+    fontSize: "13px"
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "8px",
+    backgroundColor: "#020617",
+    border: "1px solid #334155",
+    borderRadius: "8px",
+    color: "#e5e7eb",
+    fontSize: "13px",
+    boxSizing: "border-box"
+  };
+
+  const buttonStyle = {
+    width: "100%",
+    marginTop: "14px",
+    backgroundColor: "#fbbf24",
+    padding: "10px 16px",
+    borderRadius: "999px",
+    border: "none",
+    fontWeight: 700,
+    fontSize: "14px",
+    cursor: loading ? "default" : "pointer"
+  };
+
   return (
-    <div
-      style={{
-        maxWidth: "420px",
-        margin: "0 auto",
-        backgroundColor: "#020617",
-        borderRadius: "16px",
-        border: "1px solid #1f2937",
-        padding: "20px"
-      }}
-    >
-      <h1
-        style={{
-          color: "#fbbf24",
-          marginTop: 0,
-          marginBottom: "8px",
-          fontSize: "20px"
-        }}
-      >
-        Login Nasabah
-      </h1>
-      <p
-        style={{
-          fontSize: "13px",
-          color: "#cbd5e1",
-          marginTop: 0,
-          marginBottom: "16px"
-        }}
-      >
-        Masuk menggunakan email dan kata sandi yang sudah didaftarkan.
-      </p>
-
-      <form onSubmit={handleSubmit}>
-        <label
-          style={{
-            display: "block",
-            fontSize: "13px",
-            marginBottom: "4px",
-            color: "#e5e7eb"
-          }}
-        >
-          Email
-        </label>
-        <input
-          type="email"
-          name="contact"
-          value={form.contact}
-          onChange={handleChange}
-          placeholder="Email terdaftar"
-          style={inputStyle}
-        />
-
-        <label
-          style={{
-            display: "block",
-            fontSize: "13px",
-            marginBottom: "4px",
-            marginTop: "10px",
-            color: "#e5e7eb"
-          }}
-        >
-          Kata Sandi
-        </label>
-        <input
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Masukkan kata sandi"
-          style={inputStyle}
-        />
-
-        {error && (
+    <div style={pageWrapper}>
+      <div style={card}>
+        <div style={{ textAlign: "center", marginBottom: "14px" }}>
+          <h1
+            style={{
+              color: "#fbbf24",
+              margin: 0,
+              fontSize: "20px"
+            }}
+          >
+            Masuk Akun Danatama
+          </h1>
           <p
             style={{
+              color: "#9ca3af",
               fontSize: "12px",
-              color: "#f97316",
               marginTop: "6px",
               marginBottom: 0
             }}
           >
-            {error}
+            Gunakan email dan kata sandi yang sudah terdaftar.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <label style={labelStyle}>Email</label>
+          <input
+            type="email"
+            placeholder="contoh: nama@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputStyle}
+          />
+
+          <label style={labelStyle}>Kata Sandi</label>
+          <input
+            type="password"
+            placeholder="min. 6 karakter"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+
+          <button type="submit" disabled={loading} style={buttonStyle}>
+            {loading ? "Memproses..." : "Masuk"}
+          </button>
+        </form>
+
+        {message && (
+          <p
+            style={{
+              color: "#9ca3af",
+              fontSize: "12px",
+              marginTop: "10px"
+            }}
+          >
+            {message}
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
+        <div
           style={{
-            width: "100%",
-            backgroundColor: "#fbbf24",
-            color: "#111827",
-            border: "none",
-            padding: "10px 16px",
-            borderRadius: "8px",
-            fontWeight: 700,
-            fontSize: "14px",
-            cursor: loading ? "default" : "pointer",
-            marginTop: "16px",
-            opacity: loading ? 0.7 : 1
+            marginTop: "14px",
+            fontSize: "12px",
+            color: "#9ca3af",
+            textAlign: "center"
           }}
         >
-          {loading ? "Memproses..." : "Masuk"}
-        </button>
-      </form>
-
-      <p
-        style={{
-          fontSize: "12px",
-          textAlign: "center",
-          marginTop: "14px",
-          color: "#9ca3af"
-        }}
-      >
-        Belum punya akun?{" "}
-        <a href="/register" style={{ color: "#38bdf8", textDecoration: "none" }}>
-          Daftar di sini
-        </a>
-      </p>
+          Belum punya akun?{" "}
+          <a
+            href="/register"
+            style={{
+              color: "#fbbf24",
+              textDecoration: "none",
+              fontWeight: 600
+            }}
+          >
+            Daftar sekarang
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "8px 10px",
-  borderRadius: "8px",
-  border: "1px solid #334155",
-  backgroundColor: "#020617",
-  color: "#e5e7eb",
-  fontSize: "13px"
-};

@@ -93,6 +93,21 @@ export default function RootLayout({ children }) {
               <a href="/wallet" style={navLink}>
               Dompet
               </a>
+              <a
+                href="https://wa.me/6281234567890"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  textDecoration: "none",
+                  backgroundColor: "#22c55e",
+                  color: "#111827",
+                  padding: "8px 14px",
+                  borderRadius: "999px",
+                  fontWeight: 600
+                }}
+              >
+                Customer Service
+              </a>
 
               {/* REGISTER */}
               <a

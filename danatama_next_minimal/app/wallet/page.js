@@ -46,9 +46,10 @@ export default function WalletPage() {
     }));
   }
 
-  // Hitung saldo, total depo, total wd dari transaksi
+  // Hitung saldo hanya dari transaksi APPROVED
   const summary = transactions.reduce(
     (acc, tx) => {
+      if (tx.status !== "APPROVED") return acc;
       const amt = Number(tx.amount);
       if (tx.type === "DEPOSIT") {
         acc.deposit += amt;
@@ -77,36 +78,33 @@ export default function WalletPage() {
       return;
     }
 
-    // Cek saldo cukup saat withdraw
-    if (form.type === "WITHDRAW" && amountNum > summary.balance) {
-      setMessage("Saldo tidak mencukupi untuk penarikan ini.");
-      return;
-    }
-
+    // NOTE: Di level pengajuan, kita tidak cek saldo. Cek saldo bisa dilakukan admin saat ACC.
     setSubmitting(true);
 
     const { error } = await supabase.from("wallet_transactions").insert({
       user_id: user.id,
       type: form.type,
       amount: amountNum,
-      description: form.description || null
+      description: form.description || null,
+      status: "PENDING" // penting: jadi pengajuan, bukan langsung aktif
     });
 
     setSubmitting(false);
 
     if (error) {
       console.error(error);
-      setMessage("Gagal menyimpan transaksi: " + error.message);
+      setMessage("Gagal menyimpan pengajuan: " + error.message);
       return;
     }
 
-    // Refresh daftar transaksi (prepend manual biar cepat)
+    // Tambah pengajuan baru ke list lokal (status PENDING)
     const newTx = {
-      id: Date.now(), // sementara; di-refresh lagi nanti bila mau
+      id: Date.now(),
       user_id: user.id,
       type: form.type,
       amount: amountNum,
       description: form.description || null,
+      status: "PENDING",
       created_at: new Date().toISOString()
     };
 
@@ -120,8 +118,8 @@ export default function WalletPage() {
 
     setMessage(
       form.type === "DEPOSIT"
-        ? "Deposit simulasi berhasil dicatat."
-        : "Withdraw simulasi berhasil dicatat."
+        ? "Pengajuan deposit berhasil dikirim. Menunggu persetujuan admin."
+        : "Pengajuan withdraw berhasil dikirim. Menunggu persetujuan admin."
     );
   }
 
@@ -206,8 +204,9 @@ export default function WalletPage() {
           marginBottom: "12px"
         }}
       >
-        Fitur ini hanya untuk simulasi pengelolaan dana (deposit & withdraw).
-        Tidak terhubung dengan rekening bank dan tidak menyimpan uang nyata.
+        Pengajuan deposit dan withdraw akan masuk ke admin panel untuk
+        disetujui atau ditolak. Saldo hanya bertambah/berkurang dari transaksi
+        yang berstatus <strong>APPROVED</strong>.
       </p>
 
       {/* Ringkasan saldo */}
@@ -220,12 +219,16 @@ export default function WalletPage() {
         }}
       >
         <SummaryCard
-          label="Saldo Simulasi"
+          label="Saldo Tersedia (APPROVED)"
           value={summary.balance}
           highlight
         />
-        <SummaryCard label="Total Deposit" value={summary.deposit} />
-        <SummaryCard label="Total Withdraw" value={summary.withdraw} negative />
+        <SummaryCard label="Total Deposit Disetujui" value={summary.deposit} />
+        <SummaryCard
+          label="Total Withdraw Disetujui"
+          value={summary.withdraw}
+          negative
+        />
       </div>
 
       {/* Form transaksi */}
@@ -247,7 +250,7 @@ export default function WalletPage() {
             fontSize: "16px"
           }}
         >
-          Tambah Transaksi
+          Ajukan Transaksi
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -346,7 +349,7 @@ export default function WalletPage() {
               opacity: submitting ? 0.7 : 1
             }}
           >
-            {submitting ? "Memproses…" : "Simpan Transaksi"}
+            {submitting ? "Mengirim Pengajuan…" : "Kirim Pengajuan"}
           </button>
         </form>
       </div>
@@ -360,14 +363,14 @@ export default function WalletPage() {
           marginBottom: "8px"
         }}
       >
-        Riwayat Transaksi Dompet
+        Riwayat Pengajuan & Transaksi Dompet
       </h2>
 
       {loadingTx ? (
         <p style={{ fontSize: "14px", color: "#9ca3af" }}>Memuat data…</p>
       ) : transactions.length === 0 ? (
         <p style={{ fontSize: "14px", color: "#9ca3af" }}>
-          Belum ada transaksi. Mulai dengan melakukan deposit simulasi.
+          Belum ada transaksi. Mulai dengan mengajukan deposit simulasi.
         </p>
       ) : (
         <div
@@ -390,6 +393,7 @@ export default function WalletPage() {
                 <th style={thStyle}>Tanggal</th>
                 <th style={thStyle}>Jenis</th>
                 <th style={thStyle}>Nominal</th>
+                <th style={thStyle}>Status</th>
                 <th style={thStyle}>Keterangan</th>
               </tr>
             </thead>
@@ -397,6 +401,13 @@ export default function WalletPage() {
               {transactions.map((tx) => {
                 const amt = Number(tx.amount);
                 const isDep = tx.type === "DEPOSIT";
+                const statusColor =
+                  tx.status === "APPROVED"
+                    ? "#4ade80"
+                    : tx.status === "REJECTED"
+                    ? "#f97373"
+                    : "#fbbf24";
+
                 return (
                   <tr key={tx.id}>
                     <td style={tdStyle}>
@@ -425,7 +436,20 @@ export default function WalletPage() {
                       </span>
                     </td>
                     <td style={tdStyle}>
-                      {tx.description || <span style={{ color: "#6b7280" }}>-</span>}
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: statusColor
+                        }}
+                      >
+                        {tx.status}
+                      </span>
+                    </td>
+                    <td style={tdStyle}>
+                      {tx.description || (
+                        <span style={{ color: "#6b7280" }}>-</span>
+                      )}
                     </td>
                   </tr>
                 );

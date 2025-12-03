@@ -8,6 +8,8 @@ export default function ProductsPage() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [checkingUser, setCheckingUser] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
     async function fetchUser() {
@@ -39,6 +41,42 @@ export default function ProductsPage() {
 
   const displayName =
     user?.user_metadata?.username || user?.email || "Nasabah";
+
+  async function handleSavePortfolio() {
+    setSaveMessage("");
+    if (!user) {
+      setSaveMessage("Anda harus login untuk menyimpan portofolio.");
+      return;
+    }
+    if (cart.length === 0) {
+      setSaveMessage("Keranjang masih kosong. Tambahkan produk terlebih dahulu.");
+      return;
+    }
+
+    setSaving(true);
+
+    const rows = cart.map((item) => ({
+      user_id: user.id,
+      code: item.code,
+      name: item.name,
+      qty: item.qty,
+      avg_price: item.price
+    }));
+
+    const { error } = await supabase.from("portfolios").insert(rows);
+
+    setSaving(false);
+
+    if (error) {
+      console.error(error);
+      setSaveMessage("Gagal menyimpan ke portofolio: " + error.message);
+      return;
+    }
+
+    setSaveMessage(
+      "Portofolio simulasi berhasil disimpan. Anda bisa melihatnya di halaman Riwayat Portofolio."
+    );
+  }
 
   // ⏳ Saat masih cek user
   if (checkingUser) {
@@ -144,6 +182,17 @@ export default function ProductsPage() {
               border: "1px solid #334155"
             }}
           >
+            <div
+              style={{
+                fontSize: "11px",
+                color: "#9ca3af",
+                marginBottom: "4px",
+                textTransform: "uppercase",
+                letterSpacing: "0.12em"
+              }}
+            >
+              {p.code}
+            </div>
             <h3 style={{ color: "#fbbf24", marginTop: 0 }}>{p.name}</h3>
             <p style={{ fontSize: "14px", color: "#cbd5e1" }}>
               {p.description}
@@ -224,7 +273,9 @@ export default function ProductsPage() {
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 600 }}>{item.name}</div>
+                    <div style={{ fontWeight: 600 }}>
+                      {item.code} – {item.name}
+                    </div>
                     <div style={{ fontSize: "12px", color: "#9ca3af" }}>
                       Qty: {item.qty} × Rp{" "}
                       {item.price.toLocaleString("id-ID")}
@@ -266,20 +317,28 @@ export default function ProductsPage() {
                 padding: "10px 16px",
                 borderRadius: "8px",
                 border: "none",
-                cursor: "pointer",
+                cursor: saving ? "default" : "pointer",
                 fontWeight: 600,
-                fontSize: "14px"
+                fontSize: "14px",
+                opacity: saving ? 0.7 : 1
               }}
-              onClick={() =>
-                alert(
-                  `Simulasi investasi dengan total nominal Rp ${subtotal.toLocaleString(
-                    "id-ID"
-                  )}`
-                )
-              }
+              onClick={handleSavePortfolio}
+              disabled={saving}
             >
-              Simulasikan Investasi
+              {saving ? "Menyimpan…" : "Simpan ke Portofolio"}
             </button>
+
+            {saveMessage && (
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#9ca3af",
+                  marginTop: "8px"
+                }}
+              >
+                {saveMessage}
+              </p>
+            )}
           </>
         )}
       </section>

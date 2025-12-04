@@ -128,7 +128,7 @@ export default function RootLayout({ children }) {
             >
               {/* Customer Service WhatsApp */}
               <a
-                href="https://wa.me/6281234567890"
+                href="https://wa.me/6282160082473"
                 target="_blank"
                 rel="noreferrer"
                 style={{
